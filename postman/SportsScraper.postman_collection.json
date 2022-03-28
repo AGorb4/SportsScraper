@@ -1,0 +1,79 @@
+{
+	"info": {
+		"_postman_id": "7de19708-fc5f-4538-b3c7-58a6008878bc",
+		"name": "SportsScraper",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Teams for Season localhost",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8080/teams/2022",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"teams",
+						"2022"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Player Gamelog localhost",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8080/gamelog/miltosh01/2022",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"gamelog",
+						"miltosh01",
+						"2022"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Players Per Game localhost",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8079/2022/0",
+					"host": [
+						"localhost"
+					],
+					"port": "8079",
+					"path": [
+						"2022",
+						"0"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
