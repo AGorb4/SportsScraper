@@ -1,16 +1,18 @@
 package com.sports.scraper.api.service;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.sports.scraper.api.constants.ScrapingConstants;
+import com.sports.scraper.api.exceptions.ScrapingException;
 import com.sports.scraper.api.utils.MapperUtils;
 import com.sports.scraper.domain.player.PlayerGameLogDto;
 import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
 import com.sports.scraper.domain.team.TeamPerGameDto;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,8 +23,24 @@ import org.springframework.stereotype.Service;
 public class ScraperServiceImpl implements ScraperService {
 
     @Override
-    public Set<PlayerPerGameStatsDto> getPlayerPerGameForSeasonByTeam(int year, int pageSize) {
-        Set<PlayerPerGameStatsDto> responseDtos = new HashSet<>();
+    public Document getDocumentForURL(String url) throws ScrapingException {
+        Document doc = null;
+        Connection connection = Jsoup.connect(url);
+
+        try {
+            doc = connection.get();
+        } catch (IOException ex) {
+            throw new ScrapingException(
+                    String.format("Unsuccessful respone calling =%s Exception=%s", url,
+                            ex.getMessage()));
+        }
+
+        return doc;
+    }
+
+    @Override
+    public List<PlayerPerGameStatsDto> getPlayerPerGameForSeasonByTeam(int year, int pageSize) {
+        List<PlayerPerGameStatsDto> responseDtos = new ArrayList<>();
         try {
 
             String url = ScrapingConstants.BASE_URL + "/leagues/NBA_" + year + "_per_game.html";
@@ -45,8 +63,8 @@ public class ScraperServiceImpl implements ScraperService {
     }
 
     @Override
-    public Set<PlayerGameLogDto> getPlayerGameLogForYear(String player, int year) {
-        Set<PlayerGameLogDto> responseDtos = new HashSet<>();
+    public List<PlayerGameLogDto> getPlayerGameLogForYear(String player, int year) {
+        List<PlayerGameLogDto> responseDtos = new ArrayList<>();
         try {
 
             String url = ScrapingConstants.BASE_URL + "/players/" + player.charAt(0) + "/" + player + "/gamelog/"
@@ -71,8 +89,8 @@ public class ScraperServiceImpl implements ScraperService {
     }
 
     @Override
-    public Set<TeamPerGameDto> getTeamPerGameStats(int year) {
-        Set<TeamPerGameDto> responseDtos = new HashSet<>();
+    public List<TeamPerGameDto> getTeamPerGameStats(int year) {
+        List<TeamPerGameDto> responseDtos = new ArrayList<>();
         try {
 
             String url = ScrapingConstants.BASE_URL + "/leagues/NBA_" + year + ".html";
