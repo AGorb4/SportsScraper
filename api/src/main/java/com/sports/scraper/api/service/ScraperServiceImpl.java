@@ -39,7 +39,7 @@ public class ScraperServiceImpl implements ScraperService {
     }
 
     @Override
-    public List<PlayerPerGameStatsDto> getPlayerPerGameForSeasonByTeam(int year, int pageSize) {
+    public List<PlayerPerGameStatsDto> getPlayerPerGameForSeason(int year, int pageSize) {
         List<PlayerPerGameStatsDto> responseDtos = new ArrayList<>();
         try {
 
