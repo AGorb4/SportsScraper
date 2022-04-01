@@ -22,7 +22,6 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-<<<<<<< HEAD
 #UI
 
 .DS_Store
@@ -49,4 +48,3 @@ yarn-error.log*
 =======
 # vs code
 .vscode/
->>>>>>> 83e4d8e070088f7b6e12fd08cd48c57c5ffd2485
