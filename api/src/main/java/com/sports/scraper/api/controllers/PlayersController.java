@@ -33,7 +33,7 @@ public class PlayersController {
     public ResponseEntity<List<PlayerPerGameStatsDto>> getPlayerPerGameComparison(@PathVariable int year,
             @PathVariable String playerOneName, @PathVariable String playerTwoName) {
 
-        if (playerOneName.isBlank() || playerTwoName.isBlank())
+        if (playerOneName.isEmpty() || playerTwoName.isEmpty())
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         List<PlayerPerGameStatsDto> playersPerGameList = scraperService.getPlayerPerGameForSeason(year, 0);
