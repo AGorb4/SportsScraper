@@ -3,12 +3,19 @@ package com.sports.scraper.domain.props.draftkings.responses;
 import java.io.Serializable;
 import java.util.List;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@Data
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
+@NoArgsConstructor
 public class EventGroup implements Serializable {
-    public long eventGroundId;
-    public long providerEventGroupId;
-    public int providerId;
-    public List<OfferCategory> offerCategories;
+    private long eventGroupId;
+    private long providerEventGroupId;
+    private int providerId;
+    private List<OfferCategory> offerCategories;
 }

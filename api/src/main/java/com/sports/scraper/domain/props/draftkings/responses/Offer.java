@@ -3,15 +3,22 @@ package com.sports.scraper.domain.props.draftkings.responses;
 import java.io.Serializable;
 import java.util.List;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@Data
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
+@NoArgsConstructor
 public class Offer implements Serializable {
 
-    public long providerOfferId;
-    public long providerEventId;
-    public boolean isSuspended;
-    public long offerSubcategoryId;
-    public int betOfferTypeId;
-    public List<Outcome> outcomes;
+    private long providerOfferId;
+    private long providerEventId;
+    private boolean isSuspended;
+    private long offerSubcategoryId;
+    private int betOfferTypeId;
+    private List<Outcome> outcomes;
 }
