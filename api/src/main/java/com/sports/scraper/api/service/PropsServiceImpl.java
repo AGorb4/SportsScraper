@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sports.scraper.domain.props.draftkings.responses.DraftkingsResponse;
-import com.sports.scraper.domain.props.draftkings.responses.EventGroup;
+import com.sports.scraper.domain.props.draftkings.responses.Event;
 import com.sports.scraper.domain.props.draftkings.responses.OfferCategory;
-import com.sports.scraper.domain.props.draftkings.responses.SubCategory;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -43,4 +42,25 @@ public class PropsServiceImpl implements PropsService {
         return new ArrayList<>();
     }
 
+    @Override
+    public List<Event> getEvents() {
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<DraftkingsResponse> response = restTemplate.getForEntity(draftkingsUrl,
+                DraftkingsResponse.class);
+        if (response.getStatusCode().value() == 200 && response.hasBody()) {
+            System.out.println("Success getting draftkings events");
+            DraftkingsResponse draftkingsResponse = response.getBody();
+            if (draftkingsResponse != null) {
+                if (draftkingsResponse.getEventGroup() != null) {
+                    return draftkingsResponse.getEventGroup().getEvents();
+                } else {
+                    System.out.println("Draftkings event group object is null");
+                }
+            } else {
+                System.out.println("Null response body getting draftkings offer categories");
+            }
+        }
+        return new ArrayList<>();
+    }
 }

@@ -1,7 +1,6 @@
 package com.sports.scraper.domain.props.draftkings.responses;
 
 import java.io.Serializable;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -13,10 +12,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class EventGroup implements Serializable {
-    private long eventGroupId;
-    private long providerEventGroupId;
-    private int providerId;
-    private List<OfferCategory> offerCategories;
-    private List<Event> events;
+public class EventStatus implements Serializable {
+    private String state;
+    private int minute;
+    private int second;
 }
