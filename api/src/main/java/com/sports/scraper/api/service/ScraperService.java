@@ -15,6 +15,8 @@ public interface ScraperService {
 
     List<PlayerGameLogDto> getPlayerGameLogForYear(String player, int year);
 
+    List<PlayerGameLogDto> getPlayerGameLogVsTeam(String player, String team, int year);
+
     List<TeamPerGameDto> getTeamPerGameStats(int year);
 
     Document getDocumentForURL(String url) throws ScrapingException;

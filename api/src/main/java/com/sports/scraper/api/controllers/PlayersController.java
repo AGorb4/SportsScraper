@@ -54,4 +54,11 @@ public class PlayersController {
         List<PlayerGameLogDto> playersGameLogList = scraperService.getPlayerGameLogForYear(player, year);
         return new ResponseEntity<>(playersGameLogList, HttpStatus.OK);
     }
+
+    @GetMapping(path = "/{year}/gamelog/{player}/against/{vsTeam}")
+    public ResponseEntity<List<PlayerGameLogDto>> getPlayerGameLogVsTeam(@PathVariable String player,
+            @PathVariable int year, @PathVariable String vsTeam) {
+        List<PlayerGameLogDto> playersGameLogList = scraperService.getPlayerGameLogVsTeam(player, vsTeam, year);
+        return new ResponseEntity<>(playersGameLogList, HttpStatus.OK);
+    }
 }
