@@ -1,0 +1,121 @@
+[
+    {
+        "eventId": 180286181,
+        "eventGroupId": 88670846,
+        "eventGroupName": "NBA",
+        "providerEventId": 26584386,
+        "name": "ORL Magic @ CHA Hornets",
+        "startDate": "2022-04-07T23:10:00.000+00:00",
+        "teamName1": "ORL Magic",
+        "teamName2": "CHA Hornets",
+        "teamShortName1": "ORL",
+        "teamShortName2": "CHA",
+        "eventStatus": {
+            "state": "NOT_STARTED",
+            "minute": 0,
+            "second": 0
+        }
+    },
+    {
+        "eventId": 180286182,
+        "eventGroupId": 88670846,
+        "eventGroupName": "NBA",
+        "providerEventId": 26584387,
+        "name": "BOS Celtics @ MIL Bucks",
+        "startDate": "2022-04-07T23:30:00.000+00:00",
+        "teamName1": "BOS Celtics",
+        "teamName2": "MIL Bucks",
+        "teamShortName1": "BOS",
+        "teamShortName2": "MIL",
+        "eventStatus": {
+            "state": "NOT_STARTED",
+            "minute": 0,
+            "second": 0
+        }
+    },
+    {
+        "eventId": 180286183,
+        "eventGroupId": 88670846,
+        "eventGroupName": "NBA",
+        "providerEventId": 26584388,
+        "name": "PHI 76ers @ TOR Raptors",
+        "startDate": "2022-04-07T23:40:00.000+00:00",
+        "teamName1": "PHI 76ers",
+        "teamName2": "TOR Raptors",
+        "teamShortName1": "PHI",
+        "teamShortName2": "TOR",
+        "eventStatus": {
+            "state": "NOT_STARTED",
+            "minute": 0,
+            "second": 0
+        }
+    },
+    {
+        "eventId": 180286193,
+        "eventGroupId": 88670846,
+        "eventGroupName": "NBA",
+        "providerEventId": 26584404,
+        "name": "SA Spurs @ MIN Timberwolves",
+        "startDate": "2022-04-08T00:10:00.000+00:00",
+        "teamName1": "SA Spurs",
+        "teamName2": "MIN Timberwolves",
+        "teamShortName1": "SAS",
+        "teamShortName2": "MIN",
+        "eventStatus": {
+            "state": "NOT_STARTED",
+            "minute": 0,
+            "second": 0
+        }
+    },
+    {
+        "eventId": 180286206,
+        "eventGroupId": 88670846,
+        "eventGroupName": "NBA",
+        "providerEventId": 26584406,
+        "name": "POR Trail Blazers @ NO Pelicans",
+        "startDate": "2022-04-08T00:10:00.000+00:00",
+        "teamName1": "POR Trail Blazers",
+        "teamName2": "NO Pelicans",
+        "teamShortName1": "POR",
+        "teamShortName2": "NO",
+        "eventStatus": {
+            "state": "NOT_STARTED",
+            "minute": 0,
+            "second": 0
+        }
+    },
+    {
+        "eventId": 180286207,
+        "eventGroupId": 88670846,
+        "eventGroupName": "NBA",
+        "providerEventId": 26584407,
+        "name": "MEM Grizzlies @ DEN Nuggets",
+        "startDate": "2022-04-08T01:10:00.000+00:00",
+        "teamName1": "MEM Grizzlies",
+        "teamName2": "DEN Nuggets",
+        "teamShortName1": "MEM",
+        "teamShortName2": "DEN",
+        "eventStatus": {
+            "state": "NOT_STARTED",
+            "minute": 0,
+            "second": 0
+        }
+    },
+    {
+        "eventId": 180286208,
+        "eventGroupId": 88670846,
+        "eventGroupName": "NBA",
+        "providerEventId": 26584410,
+        "name": "LA Lakers @ GS Warriors",
+        "startDate": "2022-04-08T02:10:00.000+00:00",
+        "teamName1": "LA Lakers",
+        "teamName2": "GS Warriors",
+        "teamShortName1": "LAL",
+        "teamShortName2": "GS",
+        "eventStatus": {
+            "state": "NOT_STARTED",
+            "minute": 0,
+            "second": 0
+        }
+    }
+]

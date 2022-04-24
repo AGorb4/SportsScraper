@@ -28,7 +28,9 @@
             <router-link to="/players">
               <a class="nav-link" href="">Players</a>
             </router-link>
-            <a class="nav-link" href="#">Scores</a>
+            <router-link to="/props">
+              <a class="nav-link" href="">Props</a>
+            </router-link>
             <router-link to="/about">
               <a class="nav-link" href="">About</a>
             </router-link>
