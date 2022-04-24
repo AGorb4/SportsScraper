@@ -1,6 +1,7 @@
 package com.sports.scraper.api.utils;
 
 import com.sports.scraper.api.constants.ScrapingConstants;
+import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
 import com.sports.scraper.domain.player.PlayerGameLogDto;
 import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
 import com.sports.scraper.domain.team.TeamPerGameDto;
@@ -89,6 +90,38 @@ public class MapperUtils {
         responseDto.setPoints(getInteger(columns.get(26).text()));
         responseDto.setGameScore(getDouble(columns.get(27).text()));
         responseDto.setPlusMinus(columns.get(28).text());
+        return responseDto;
+    }
+
+    public static PlayerAdvancedGameLogDto mapPlayerAdvancedGameLogRow(Elements columns) {
+        PlayerAdvancedGameLogDto responseDto = new PlayerAdvancedGameLogDto();
+        responseDto.setGameCount(getInteger(columns.get(0).text()));
+        responseDto.setDate(columns.get(1).text());
+        responseDto.setAge(columns.get(2).text());
+        responseDto.setTeam(columns.get(3).text());
+        responseDto.setAway(getIsAway(columns.get(4).text()));
+        responseDto.setOpponent(columns.get(5).text());
+        responseDto.setResult(columns.get(6).text());
+        if (responseDto.getGameCount() == 0) {
+            responseDto.setReason(columns.get(7).text());
+            return responseDto;
+        }
+        responseDto.setStartedGame(getIsStarting(getInteger(columns.get(7).text())));
+        responseDto.setMinutesPlayed(columns.get(8).text());
+        responseDto.setTrueShootingPercent(columns.get(9).text());
+        responseDto.setEffectiveFieldGoalPercent(columns.get(10).text());
+        responseDto.setOffensiveReboundPercent(columns.get(11).text());
+        responseDto.setDefensiveReboundPercent(columns.get(12).text());
+        responseDto.setTotalReboundPercent(columns.get(13).text());
+        responseDto.setAssistPercent(columns.get(14).text());
+        responseDto.setStealPercent(columns.get(15).text());
+        responseDto.setBlockPercent(columns.get(16).text());
+        responseDto.setTurnoverPercent(columns.get(17).text());
+        responseDto.setUsagePercent(columns.get(18).text());
+        responseDto.setOffensiveRating(getInteger(columns.get(19).text()));
+        responseDto.setDefenseRating(getInteger(columns.get(20).text()));
+        responseDto.setGameScore(columns.get(21).text());
+        responseDto.setBoxPlusMinus(columns.get(22).text());
         return responseDto;
     }
 

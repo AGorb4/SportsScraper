@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import com.sports.scraper.api.constants.ScrapingConstants;
 import com.sports.scraper.api.exceptions.ScrapingException;
 import com.sports.scraper.api.utils.MapperUtils;
+import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
 import com.sports.scraper.domain.player.PlayerGameLogDto;
 import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
 import com.sports.scraper.domain.team.TeamPerGameDto;
@@ -91,6 +92,32 @@ public class ScraperServiceImpl implements ScraperService {
     }
 
     @Override
+    public List<PlayerAdvancedGameLogDto> getPlayerAdvancedGameLogForYear(String player, int year) {
+        List<PlayerAdvancedGameLogDto> responseDtos = new ArrayList<>();
+        try {
+
+            String url = ScrapingConstants.BASE_URL + "/players/" + player.charAt(0) + "/" + player
+                    + "/gamelog-advanced/" + year;
+
+            Document document = Jsoup.connect(url).get();
+            Elements tables = document.getElementsByTag("tbody");
+            Elements gamesList = tables.get(tables.size() - 1).getElementsByTag("tr");
+
+            for (int i = 1; i < gamesList.size(); i++) {
+                if (!StringUtils.isEmpty(gamesList.get(i).text())) {
+                    Elements columns = gamesList.get(i).getElementsByTag("td");
+                    if (!columns.isEmpty()) {
+                        responseDtos.add(MapperUtils.mapPlayerAdvancedGameLogRow(columns));
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return responseDtos;
+    }
+
+    @Override
     @Cacheable(value = "teams", key = "#year")
     public List<TeamPerGameDto> getTeamPerGameStats(int year) {
         System.out.println("Getting teams for " + year);
@@ -121,6 +148,7 @@ public class ScraperServiceImpl implements ScraperService {
         return responseDtos;
     }
 
+    @Override
     public List<PlayerGameLogDto> getPlayerGameLogVsTeam(String player, String vsTeam, int year) {
         if (vsTeam == null || vsTeam.isBlank()) {
             System.out.println("getPlayerGameLogVsTeam VS team cannot be null or empty");

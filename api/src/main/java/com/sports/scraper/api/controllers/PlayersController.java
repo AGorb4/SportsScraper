@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.sports.scraper.api.service.ScraperService;
+import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
 import com.sports.scraper.domain.player.PlayerGameLogDto;
 import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
 
@@ -52,6 +53,14 @@ public class PlayersController {
     public ResponseEntity<List<PlayerGameLogDto>> getPlayerGameLogForYear(@PathVariable String player,
             @PathVariable int year) {
         List<PlayerGameLogDto> playersGameLogList = scraperService.getPlayerGameLogForYear(player, year);
+        return new ResponseEntity<>(playersGameLogList, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/{year}/gamelog/advanced/{player}")
+    public ResponseEntity<List<PlayerAdvancedGameLogDto>> getPlayerAdvancedGameLogForYear(@PathVariable String player,
+            @PathVariable int year) {
+        List<PlayerAdvancedGameLogDto> playersGameLogList = scraperService.getPlayerAdvancedGameLogForYear(player,
+                year);
         return new ResponseEntity<>(playersGameLogList, HttpStatus.OK);
     }
 
