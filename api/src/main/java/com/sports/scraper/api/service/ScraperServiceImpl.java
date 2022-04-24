@@ -3,6 +3,7 @@ package com.sports.scraper.api.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.sports.scraper.api.constants.ScrapingConstants;
 import com.sports.scraper.api.exceptions.ScrapingException;
@@ -118,5 +119,13 @@ public class ScraperServiceImpl implements ScraperService {
             ex.printStackTrace();
         }
         return responseDtos;
+    }
+
+    public List<PlayerGameLogDto> getPlayerGameLogVsTeam(String player, String vsTeam, int year) {
+        if (vsTeam == null || vsTeam.isBlank()) {
+            System.out.println("getPlayerGameLogVsTeam VS team cannot be null or empty");
+        }
+        return getPlayerGameLogForYear(player, year).stream().filter(gl -> gl.getOpponent().equalsIgnoreCase(vsTeam))
+                .collect(Collectors.toList());
     }
 }
