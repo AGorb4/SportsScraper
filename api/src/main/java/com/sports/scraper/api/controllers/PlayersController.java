@@ -26,7 +26,7 @@ public class PlayersController {
     @GetMapping(path = "/{year}/pergame/{pageSize}")
     public ResponseEntity<List<PlayerPerGameStatsDto>> getPlayerPerGameForSeasonByTeam(@PathVariable int year,
             @PathVariable int pageSize) {
-        List<PlayerPerGameStatsDto> playersPerGameList = scraperService.getPlayerPerGameForSeason(year, pageSize);
+        List<PlayerPerGameStatsDto> playersPerGameList = scraperService.getPlayersPerGameForSeason(year, pageSize);
         return new ResponseEntity<>(playersPerGameList, HttpStatus.OK);
     }
 
@@ -37,7 +37,7 @@ public class PlayersController {
         if (playerOneName.isEmpty() || playerTwoName.isEmpty())
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-        List<PlayerPerGameStatsDto> playersPerGameList = scraperService.getPlayerPerGameForSeason(year, 0);
+        List<PlayerPerGameStatsDto> playersPerGameList = scraperService.getPlayersPerGameForSeason(year, 0);
 
         List<PlayerPerGameStatsDto> filteredPlayers = playersPerGameList.stream()
                 .filter(p -> p.getSystemName().equals(playerOneName) || p.getSystemName().equals(playerTwoName))
@@ -52,7 +52,7 @@ public class PlayersController {
     @GetMapping(path = "/{year}/gamelog/{player}")
     public ResponseEntity<List<PlayerGameLogDto>> getPlayerGameLogForYear(@PathVariable String player,
             @PathVariable int year) {
-        List<PlayerGameLogDto> playersGameLogList = scraperService.getPlayerGameLogForYear(player, year);
+        List<PlayerGameLogDto> playersGameLogList = scraperService.getPlayerGameLogForYear(player, year, false);
         return new ResponseEntity<>(playersGameLogList, HttpStatus.OK);
     }
 

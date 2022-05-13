@@ -12,9 +12,11 @@ import org.jsoup.nodes.Document;
 
 public interface ScraperService {
 
-    List<PlayerPerGameStatsDto> getPlayerPerGameForSeason(int year, int pageSize);
+    List<PlayerPerGameStatsDto> getPlayersPerGameForSeason(int year, int pageSize);
 
-    List<PlayerGameLogDto> getPlayerGameLogForYear(String player, int year);
+    PlayerPerGameStatsDto getPlayerPerGameForSeason(String playerName, int year);
+
+    List<PlayerGameLogDto> getPlayerGameLogForYear(String player, int year, boolean sortCron);
 
     List<PlayerAdvancedGameLogDto> getPlayerAdvancedGameLogForYear(String player, int year);
 
