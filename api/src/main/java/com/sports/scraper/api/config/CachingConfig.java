@@ -18,7 +18,7 @@ public class CachingConfig {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
         cacheManager.setCaches(Arrays.asList(
                 new ConcurrentMapCache("teams"),
-                new ConcurrentMapCache("gamelogs")));
+                new ConcurrentMapCache("playerGameLogForYear")));
         return cacheManager;
     }
 }

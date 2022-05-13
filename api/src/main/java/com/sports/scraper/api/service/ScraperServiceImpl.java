@@ -67,7 +67,9 @@ public class ScraperServiceImpl implements ScraperService {
     }
 
     @Override
+    @Cacheable(value = "playerGameLogForYear")
     public List<PlayerGameLogDto> getPlayerGameLogForYear(String player, int year, boolean sortCron) {
+        System.out.println("Getting player game log for " + player + " year " + year);
         List<PlayerGameLogDto> responseDtos = new ArrayList<>();
         try {
 
