@@ -24,5 +24,7 @@ public interface ScraperService {
 
     List<TeamPerGameDto> getTeamPerGameStats(int year);
 
+    String getPlayerPictureUrl(String playerName);
+
     Document getDocumentForURL(String url) throws ScrapingException;
 }

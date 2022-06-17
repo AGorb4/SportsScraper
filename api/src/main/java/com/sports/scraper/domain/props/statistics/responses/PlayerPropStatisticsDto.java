@@ -9,15 +9,13 @@ import lombok.Data;
 @Data
 public class PlayerPropStatisticsDto {
 
+    private String playerPictureUrl;
     private String propType;
     private float propTotal;
     private float playerAverage;
     private int gamesPlayed;
     private int gamesStarted;
-    private int lastNInput;
     private String lastNRecord;
     private int lastNWinPercentage;
-    private String recordAgainstTeam;
-    private int againstTeamPercentage;
     private List<PlayerGameLogDto> gameLog;
 }

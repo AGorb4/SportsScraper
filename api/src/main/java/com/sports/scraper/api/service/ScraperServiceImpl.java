@@ -182,7 +182,7 @@ public class ScraperServiceImpl implements ScraperService {
         List<PlayerPerGameStatsDto> playersPerGameList = getPlayersPerGameForSeason(year, 0);
 
         List<PlayerPerGameStatsDto> playerPerGameList = playersPerGameList.stream()
-                .filter(player -> player.getSystemName().equals(playerName))
+                .filter(player -> player.getPlayerName().equalsIgnoreCase(playerName))
                 .collect(Collectors.toList());
 
         // if more than 1 result, means they were trading and need to find where
@@ -208,5 +208,23 @@ public class ScraperServiceImpl implements ScraperService {
         Elements content = document.select("div#content");
         Elements nestedDivs = content.select("div");
         return nestedDivs.get(28).select("tbody").select("tr");
+    }
+
+    public String getPlayerPictureUrl(String playerSystemName) {
+        String url = "https://www.basketball-reference.com/players/" + playerSystemName.charAt(0) + "/"
+                + playerSystemName + ".html";
+        try {
+            Document document = getDocumentForURL(url);
+            Element pictureElement = document.select("img[src$=.jpg]").get(0);
+            if (pictureElement != null) {
+                return pictureElement.attr("src");
+            } else {
+                System.out.println("Picture element is null");
+            }
+        } catch (ScrapingException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return "";
     }
 }
