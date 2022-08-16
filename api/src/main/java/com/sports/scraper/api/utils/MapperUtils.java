@@ -1,12 +1,12 @@
 package com.sports.scraper.api.utils;
 
-import com.sports.scraper.api.constants.ScrapingConstants;
-import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
-import com.sports.scraper.domain.player.PlayerGameLogDto;
-import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
-import com.sports.scraper.domain.team.TeamPerGameDto;
-
 import org.jsoup.select.Elements;
+
+import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
+import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
+import com.sports.scraper.domain.player.nba.NBAPlayerGameLogDto;
+import com.sports.scraper.domain.player.nfl.WideReceiverGameLogDto;
+import com.sports.scraper.domain.team.TeamPerGameDto;
 
 public class MapperUtils {
 
@@ -19,7 +19,7 @@ public class MapperUtils {
         PlayerPerGameStatsDto playerDto = new PlayerPerGameStatsDto();
         playerDto.setPlayerName(playerAttributes.get(0).text());
         playerDto.setPlayerUrl(
-                ScrapingConstants.BASE_URL + playerAttributes.get(0).select("a[href]").first().attr("href"));
+                URLUtils.SCRAPING_NBA_URL + playerAttributes.get(0).select("a[href]").first().attr("href"));
         int lastForwardSlash = playerDto.getPlayerUrl().lastIndexOf("/") + 1;
         int lastPeriod = playerDto.getPlayerUrl().lastIndexOf(".");
         playerDto.setSystemName(playerDto.getPlayerUrl().substring(lastForwardSlash, lastPeriod));
@@ -55,8 +55,8 @@ public class MapperUtils {
         return playerDto;
     }
 
-    public static PlayerGameLogDto mapPlayerGameLogRow(Elements columns) {
-        PlayerGameLogDto responseDto = new PlayerGameLogDto();
+    public static NBAPlayerGameLogDto mapNBAPlayerGameLogRow(Elements columns) {
+        NBAPlayerGameLogDto responseDto = new NBAPlayerGameLogDto();
         responseDto.setGameCount(getInteger(columns.get(0).text()));
         responseDto.setDate(columns.get(1).text());
         responseDto.setAge(columns.get(2).text());
@@ -90,6 +90,24 @@ public class MapperUtils {
         responseDto.setPoints(getInteger(columns.get(26).text()));
         responseDto.setGameScore(getDouble(columns.get(27).text()));
         responseDto.setPlusMinus(columns.get(28).text());
+        return responseDto;
+    }
+
+    public static WideReceiverGameLogDto mapNFLPlayerGameLogRow(Elements columns) {
+        WideReceiverGameLogDto responseDto = new WideReceiverGameLogDto();
+        responseDto.setDate(columns.get(0).text());
+        responseDto.setGameCount(getInteger(columns.get(1).text()));
+        responseDto.setWeek(getInteger(columns.get(2).text()));
+        responseDto.setAge(columns.get(3).text());
+        responseDto.setTeam(columns.get(4).text());
+        responseDto.setAway(getIsAway(columns.get(5).text()));
+        responseDto.setOpponent(columns.get(6).text());
+        responseDto.setResult(columns.get(7).text());
+        if (responseDto.getAge().isBlank()) {
+            responseDto.setReason(columns.get(8).text());
+            return responseDto;
+        }
+        responseDto.setStartedGame(columns.get(8).text().equalsIgnoreCase("*"));
         return responseDto;
     }
 
@@ -131,7 +149,7 @@ public class MapperUtils {
 
         Elements urlElements = columns.get(0).getElementsByTag("a");
         if (!urlElements.isEmpty()) {
-            responseDto.setTeamUrl(ScrapingConstants.BASE_URL + urlElements.first().attr("href"));
+            responseDto.setTeamUrl(URLUtils.SCRAPING_NBA_URL + urlElements.first().attr("href"));
 
         }
 
@@ -162,17 +180,11 @@ public class MapperUtils {
     }
 
     private static boolean getIsAway(String text) {
-        if (text.length() > 0) {
-            return true;
-        }
-        return false;
+        return text.length() > 0;
     }
 
     private static boolean getIsStarting(int isStartingInt) {
-        if (isStartingInt == 1) {
-            return true;
-        }
-        return false;
+        return isStartingInt == 1;
     }
 
     private static float getFloat(String text) {

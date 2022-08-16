@@ -1,4 +1,4 @@
-package com.sports.scraper.api.service;
+package com.sports.scraper.api.service.props;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.sports.scraper.api.service;
+package com.sports.scraper.api.service.scraper.nba;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 
 import com.sports.scraper.api.constants.ScrapingConstants;
 import com.sports.scraper.api.exceptions.ScrapingException;
+import com.sports.scraper.api.service.scraper.ScraperService;
 import com.sports.scraper.api.utils.MapperUtils;
+import com.sports.scraper.api.utils.URLUtils;
 import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
 import com.sports.scraper.domain.player.PlayerGameLogDto;
 import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
@@ -23,8 +25,8 @@ import org.jsoup.select.Elements;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-@Service
-public class ScraperServiceImpl implements ScraperService {
+@Service("nbaScraperServiceImpl")
+public class NBAScraperServiceImpl implements ScraperService {
 
     @Override
     public Document getDocumentForURL(String url) throws ScrapingException {
@@ -47,11 +49,11 @@ public class ScraperServiceImpl implements ScraperService {
         List<PlayerPerGameStatsDto> responseDtos = new ArrayList<>();
         try {
 
-            String url = ScrapingConstants.BASE_URL + "/leagues/NBA_" + year + "_per_game.html";
-
+            String url = URLUtils.SCRAPING_NBA_URL + "/leagues/NBA_" + year + "_per_game.html";
+            System.out.println(url);
             Document document = Jsoup.connect(url).get();
             Elements playersList = document.getElementsByTag("tr");
-
+            System.out.println(playersList.size());
             for (int i = 1; i < (pageSize > 0 ? pageSize : playersList.size()); i++) {
                 if (!StringUtils.isEmpty(playersList.get(i).text())) {
                     Elements playerAttributes = playersList.get(i).getElementsByTag("td");
@@ -69,22 +71,21 @@ public class ScraperServiceImpl implements ScraperService {
     @Override
     @Cacheable(value = "playerGameLogForYear")
     public List<PlayerGameLogDto> getPlayerGameLogForYear(String player, int year, boolean sortCron) {
-        System.out.println("Getting player game log for " + player + " year " + year);
+        System.out.println("Getting NBA player game log for " + player + " year " + year);
         List<PlayerGameLogDto> responseDtos = new ArrayList<>();
         try {
 
-            String url = ScrapingConstants.BASE_URL + "/players/" + player.charAt(0) + "/" + player + "/gamelog/"
-                    + year;
+            String url = URLUtils.constructScrapingUrlGameLogByPlayerByYear("NBA", player, year);
 
             Document document = Jsoup.connect(url).get();
-            Elements tables = document.getElementsByTag("tbody");
-            Elements gamesList = tables.get(tables.size() - 1).getElementsByTag("tr");
+            Elements tables = document.getElementsByTag(ScrapingConstants.TABLE_BODY_TAG);
+            Elements gamesList = tables.get(tables.size() - 1).getElementsByTag(ScrapingConstants.TABLE_ROW_TAG);
 
             for (int i = 0; i < gamesList.size(); i++) {
                 if (!StringUtils.isEmpty(gamesList.get(i).text())) {
-                    Elements columns = gamesList.get(i).getElementsByTag("td");
+                    Elements columns = gamesList.get(i).getElementsByTag(ScrapingConstants.TABLE_DATA_TAG);
                     if (!columns.isEmpty()) {
-                        responseDtos.add(MapperUtils.mapPlayerGameLogRow(columns));
+                        responseDtos.add(MapperUtils.mapNBAPlayerGameLogRow(columns));
                     }
                 }
             }
@@ -93,9 +94,10 @@ public class ScraperServiceImpl implements ScraperService {
                 Elements playoffGamelogElements = getPlayerPlayoffGamelogElements(document);
                 for (int i = 0; i < playoffGamelogElements.size(); i++) {
                     if (!StringUtils.isEmpty(playoffGamelogElements.get(i).text())) {
-                        Elements columns = playoffGamelogElements.get(i).getElementsByTag("td");
+                        Elements columns = playoffGamelogElements.get(i)
+                                .getElementsByTag(ScrapingConstants.TABLE_DATA_TAG);
                         if (!columns.isEmpty()) {
-                            responseDtos.add(MapperUtils.mapPlayerGameLogRow(columns));
+                            responseDtos.add(MapperUtils.mapNBAPlayerGameLogRow(columns));
                         }
                     }
                 }
@@ -115,16 +117,16 @@ public class ScraperServiceImpl implements ScraperService {
         List<PlayerAdvancedGameLogDto> responseDtos = new ArrayList<>();
         try {
 
-            String url = ScrapingConstants.BASE_URL + "/players/" + player.charAt(0) + "/" + player
+            String url = URLUtils.SCRAPING_NBA_URL + "/players/" + player.charAt(0) + "/" + player
                     + "/gamelog-advanced/" + year;
 
             Document document = Jsoup.connect(url).get();
-            Elements tables = document.getElementsByTag("tbody");
-            Elements gamesList = tables.get(tables.size() - 1).getElementsByTag("tr");
+            Elements tables = document.getElementsByTag(ScrapingConstants.TABLE_BODY_TAG);
+            Elements gamesList = tables.get(tables.size() - 1).getElementsByTag(ScrapingConstants.TABLE_ROW_TAG);
 
             for (int i = 1; i < gamesList.size(); i++) {
                 if (!StringUtils.isEmpty(gamesList.get(i).text())) {
-                    Elements columns = gamesList.get(i).getElementsByTag("td");
+                    Elements columns = gamesList.get(i).getElementsByTag(ScrapingConstants.TABLE_DATA_TAG);
                     if (!columns.isEmpty()) {
                         responseDtos.add(MapperUtils.mapPlayerAdvancedGameLogRow(columns));
                     }
@@ -143,15 +145,15 @@ public class ScraperServiceImpl implements ScraperService {
         List<TeamPerGameDto> responseDtos = new ArrayList<>();
         try {
 
-            String url = ScrapingConstants.BASE_URL + "/leagues/NBA_" + year + ".html";
+            String url = URLUtils.SCRAPING_NBA_URL + "/leagues/NBA_" + year + ".html";
 
             Document document = Jsoup.connect(url).get();
             Element table = document.getElementById("per_game-team");
-            Elements teamsList = table.getElementsByTag("tr");
+            Elements teamsList = table.getElementsByTag(ScrapingConstants.TABLE_ROW_TAG);
 
             for (int i = 1; i < teamsList.size(); i++) {
                 if (!StringUtils.isEmpty(teamsList.get(i).text())) {
-                    Elements columns = teamsList.get(i).getElementsByTag("td");
+                    Elements columns = teamsList.get(i).getElementsByTag(ScrapingConstants.TABLE_DATA_TAG);
                     if (!columns.isEmpty()) {
                         responseDtos.add(MapperUtils.mapTeamPerGameStatsRow(columns));
                     }
@@ -159,8 +161,9 @@ public class ScraperServiceImpl implements ScraperService {
             }
 
             Element tableFooter = table.getElementsByTag("tfoot").get(0);
-            Element footerRow = tableFooter.getElementsByTag("tr").get(0);
-            responseDtos.add(MapperUtils.mapTeamPerGameStatsRow(footerRow.getElementsByTag("td")));
+            Element footerRow = tableFooter.getElementsByTag(ScrapingConstants.TABLE_ROW_TAG).get(0);
+            responseDtos.add(
+                    MapperUtils.mapTeamPerGameStatsRow(footerRow.getElementsByTag(ScrapingConstants.TABLE_DATA_TAG)));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -172,6 +175,7 @@ public class ScraperServiceImpl implements ScraperService {
         if (vsTeam == null || vsTeam.isBlank()) {
             System.out.println("getPlayerGameLogVsTeam VS team cannot be null or empty");
         }
+
         return getPlayerGameLogForYear(player, year, false).stream()
                 .filter(gl -> gl.getOpponent().equalsIgnoreCase(vsTeam))
                 .collect(Collectors.toList());
@@ -179,6 +183,7 @@ public class ScraperServiceImpl implements ScraperService {
 
     @Override
     public PlayerPerGameStatsDto getPlayerPerGameForSeason(String playerName, int year) {
+        System.out.println("getPlayerPerGameForSeason");
         List<PlayerPerGameStatsDto> playersPerGameList = getPlayersPerGameForSeason(year, 0);
 
         List<PlayerPerGameStatsDto> playerPerGameList = playersPerGameList.stream()

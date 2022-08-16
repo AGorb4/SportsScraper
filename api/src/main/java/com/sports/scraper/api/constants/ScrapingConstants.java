@@ -8,5 +8,9 @@ public class ScrapingConstants {
 
     public static final int CODE_200 = 200;
 
-    public static final String BASE_URL = "http://www.basketball-reference.com";
+    // tags
+    public static final String TABLE_BODY_TAG = "tbody";
+    public static final String TABLE_ROW_TAG = "tr";
+    public static final String TABLE_DATA_TAG = "td";
+
 }
