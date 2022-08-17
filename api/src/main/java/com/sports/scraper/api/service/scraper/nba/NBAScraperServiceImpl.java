@@ -52,11 +52,11 @@ public class NBAScraperServiceImpl implements ScraperService {
             String url = URLUtils.SCRAPING_NBA_URL + "/leagues/NBA_" + year + "_per_game.html";
             System.out.println(url);
             Document document = Jsoup.connect(url).get();
-            Elements playersList = document.getElementsByTag("tr");
+            Elements playersList = document.getElementsByTag(ScrapingConstants.TABLE_ROW_TAG);
             System.out.println(playersList.size());
             for (int i = 1; i < (pageSize > 0 ? pageSize : playersList.size()); i++) {
                 if (!StringUtils.isEmpty(playersList.get(i).text())) {
-                    Elements playerAttributes = playersList.get(i).getElementsByTag("td");
+                    Elements playerAttributes = playersList.get(i).getElementsByTag(ScrapingConstants.TABLE_DATA_TAG);
                     if (!playerAttributes.isEmpty()) {
                         responseDtos.add(MapperUtils.mapPlayerPerGameStatsRow(playerAttributes));
                     }
@@ -160,7 +160,7 @@ public class NBAScraperServiceImpl implements ScraperService {
                 }
             }
 
-            Element tableFooter = table.getElementsByTag("tfoot").get(0);
+            Element tableFooter = table.getElementsByTag(ScrapingConstants.TABLE_FOOTER).get(0);
             Element footerRow = tableFooter.getElementsByTag(ScrapingConstants.TABLE_ROW_TAG).get(0);
             responseDtos.add(
                     MapperUtils.mapTeamPerGameStatsRow(footerRow.getElementsByTag(ScrapingConstants.TABLE_DATA_TAG)));
@@ -201,18 +201,18 @@ public class NBAScraperServiceImpl implements ScraperService {
     }
 
     private boolean hasPlayoffGames(Document document) {
-        document = Jsoup.parse(document.toString().replaceAll("<!--|-->", ""));
-        Elements content = document.select("div#content");
-        Elements nestedDivs = content.select("div");
-        Elements playoffGameLog = nestedDivs.get(28).select("tbody");
+        document = Jsoup.parse(document.toString().replaceAll(ScrapingConstants.COMMENT_REGEX, ""));
+        Elements content = document.select(ScrapingConstants.DIV_CONTENT);
+        Elements nestedDivs = content.select(ScrapingConstants.DIV);
+        Elements playoffGameLog = nestedDivs.get(28).select(ScrapingConstants.TABLE_BODY_TAG);
         return !playoffGameLog.isEmpty();
     }
 
     private Elements getPlayerPlayoffGamelogElements(Element document) {
-        document = Jsoup.parse(document.toString().replaceAll("<!--|-->", ""));
-        Elements content = document.select("div#content");
-        Elements nestedDivs = content.select("div");
-        return nestedDivs.get(28).select("tbody").select("tr");
+        document = Jsoup.parse(document.toString().replaceAll(ScrapingConstants.COMMENT_REGEX, ""));
+        Elements content = document.select(ScrapingConstants.DIV_CONTENT);
+        Elements nestedDivs = content.select(ScrapingConstants.DIV);
+        return nestedDivs.get(28).select(ScrapingConstants.TABLE_BODY_TAG).select(ScrapingConstants.TABLE_ROW_TAG);
     }
 
     public String getPlayerPictureUrl(String playerSystemName) {
@@ -220,9 +220,9 @@ public class NBAScraperServiceImpl implements ScraperService {
                 + playerSystemName + ".html";
         try {
             Document document = getDocumentForURL(url);
-            Element pictureElement = document.select("img[src$=.jpg]").get(0);
+            Element pictureElement = document.select(ScrapingConstants.IMG_ELEMENT).get(0);
             if (pictureElement != null) {
-                return pictureElement.attr("src");
+                return pictureElement.attr(ScrapingConstants.SRC);
             } else {
                 System.out.println("Picture element is null");
             }
