@@ -1,6 +1,7 @@
 <template>
-  <NavBar msg="Welcome to Your Vue.js App" />
+  <NavBar/>
   <router-view />
+  <Footer/>
 </template>
 
 <style  lang="scss">
@@ -31,11 +32,13 @@ nav a.router-link-exact-active {
 
 <script>
 import NavBar from "@/components/NavBar.vue";
+import Footer from "@/components/Footer.vue";
 
 export default {
   name: "App",
   components: {
     NavBar,
+    Footer
   },
 };
 </script>
