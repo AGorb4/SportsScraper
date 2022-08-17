@@ -2,7 +2,7 @@ package com.sports.scraper.api.controllers;
 
 import java.util.List;
 
-import com.sports.scraper.api.service.PropsService;
+import com.sports.scraper.api.service.props.PropsService;
 import com.sports.scraper.domain.props.draftkings.responses.Event;
 import com.sports.scraper.domain.props.draftkings.responses.OfferCategory;
 import com.sports.scraper.domain.props.statistics.responses.PlayerPropStatisticsDto;

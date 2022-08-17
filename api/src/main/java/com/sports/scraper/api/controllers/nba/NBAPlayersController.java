@@ -1,14 +1,10 @@
-package com.sports.scraper.api.controllers;
+package com.sports.scraper.api.controllers.nba;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.sports.scraper.api.service.ScraperService;
-import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
-import com.sports.scraper.domain.player.PlayerGameLogDto;
-import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,11 +12,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sports.scraper.api.service.scraper.ScraperService;
+import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
+import com.sports.scraper.domain.player.PlayerGameLogDto;
+import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
+
 @RestController
-@RequestMapping(path = "/players")
-public class PlayersController {
+@RequestMapping(path = "/nba/players")
+public class NBAPlayersController {
 
     @Autowired
+    @Qualifier("nbaScraperServiceImpl")
     ScraperService scraperService;
 
     @GetMapping(path = "/{year}/pergame/{pageSize}")
@@ -52,7 +54,8 @@ public class PlayersController {
     @GetMapping(path = "/{year}/gamelog/{player}")
     public ResponseEntity<List<PlayerGameLogDto>> getPlayerGameLogForYear(@PathVariable String player,
             @PathVariable int year) {
-        List<PlayerGameLogDto> playersGameLogList = scraperService.getPlayerGameLogForYear(player, year, false);
+        List<PlayerGameLogDto> playersGameLogList = scraperService.getPlayerGameLogForYear(player, year,
+                false);
         return new ResponseEntity<>(playersGameLogList, HttpStatus.OK);
     }
 

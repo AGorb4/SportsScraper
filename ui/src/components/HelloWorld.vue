@@ -1,6 +1,20 @@
 <template>
+  <div class="row" style="padding-top: 10px">
+    <h2>History doesn't repeat, but it does rhymes. Use historical data to understand probability and chance.</h2>
+    <div class="col-md-12">
+      <img alt="NBA logo" src="../assets/NBALogo.png" style="height: auto; width: auto; max-height: 260px; max-width: 350px; padding-right: 10px;"/>
+    </div>
+    <div class="col-md-12" style="margin-top: 20px">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item border-0">Research player prop hit percentage</li>
+        <li class="list-group-item border-0">Compare teams</li>
+        <li class="list-group-item border-0">Look up player stats</li>
+      </ul>
+    </div>
+  </div>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    <img alt="Vue logo" src="../assets/NavBarLogo.png" />
     <p>
       For a guide and recipes on how to configure / customize this project,<br>
       check out the
