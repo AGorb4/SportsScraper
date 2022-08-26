@@ -9,11 +9,12 @@ import java.util.stream.Collectors;
 import com.sports.scraper.api.constants.ScrapingConstants;
 import com.sports.scraper.api.exceptions.ScrapingException;
 import com.sports.scraper.api.service.scraper.ScraperService;
-import com.sports.scraper.api.utils.MapperUtils;
+import com.sports.scraper.api.utils.NBAPlayerMapperUtils;
 import com.sports.scraper.api.utils.URLUtils;
 import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
 import com.sports.scraper.domain.player.PlayerGameLogDto;
 import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
+import com.sports.scraper.domain.player.nba.NBAPlayerGameLogDto;
 import com.sports.scraper.domain.team.TeamPerGameDto;
 
 import org.apache.commons.lang3.StringUtils;
@@ -58,7 +59,7 @@ public class NBAScraperServiceImpl implements ScraperService {
                 if (!StringUtils.isEmpty(playersList.get(i).text())) {
                     Elements playerAttributes = playersList.get(i).getElementsByTag(ScrapingConstants.TABLE_DATA_TAG);
                     if (!playerAttributes.isEmpty()) {
-                        responseDtos.add(MapperUtils.mapPlayerPerGameStatsRow(playerAttributes));
+                        responseDtos.add(NBAPlayerMapperUtils.mapPlayerPerGameStatsRow(playerAttributes));
                     }
                 }
             }
@@ -69,7 +70,7 @@ public class NBAScraperServiceImpl implements ScraperService {
     }
 
     @Override
-    @Cacheable(value = "playerGameLogForYear")
+    @Cacheable(value = "nbaPlayerGameLogForYear")
     public List<PlayerGameLogDto> getPlayerGameLogForYear(String player, int year, boolean sortCron) {
         System.out.println("Getting NBA player game log for " + player + " year " + year);
         List<PlayerGameLogDto> responseDtos = new ArrayList<>();
@@ -85,7 +86,9 @@ public class NBAScraperServiceImpl implements ScraperService {
                 if (!StringUtils.isEmpty(gamesList.get(i).text())) {
                     Elements columns = gamesList.get(i).getElementsByTag(ScrapingConstants.TABLE_DATA_TAG);
                     if (!columns.isEmpty()) {
-                        responseDtos.add(MapperUtils.mapNBAPlayerGameLogRow(columns));
+                        NBAPlayerGameLogDto playerGameLog = NBAPlayerMapperUtils.mapNBAPlayerGameLogRow(columns);
+                        playerGameLog.setPlayoffGame(false);
+                        responseDtos.add(playerGameLog);
                     }
                 }
             }
@@ -97,7 +100,9 @@ public class NBAScraperServiceImpl implements ScraperService {
                         Elements columns = playoffGamelogElements.get(i)
                                 .getElementsByTag(ScrapingConstants.TABLE_DATA_TAG);
                         if (!columns.isEmpty()) {
-                            responseDtos.add(MapperUtils.mapNBAPlayerGameLogRow(columns));
+                            NBAPlayerGameLogDto playerGameLog = NBAPlayerMapperUtils.mapNBAPlayerGameLogRow(columns);
+                            playerGameLog.setPlayoffGame(true);
+                            responseDtos.add(playerGameLog);
                         }
                     }
                 }
@@ -128,7 +133,7 @@ public class NBAScraperServiceImpl implements ScraperService {
                 if (!StringUtils.isEmpty(gamesList.get(i).text())) {
                     Elements columns = gamesList.get(i).getElementsByTag(ScrapingConstants.TABLE_DATA_TAG);
                     if (!columns.isEmpty()) {
-                        responseDtos.add(MapperUtils.mapPlayerAdvancedGameLogRow(columns));
+                        responseDtos.add(NBAPlayerMapperUtils.mapPlayerAdvancedGameLogRow(columns));
                     }
                 }
             }
@@ -139,7 +144,7 @@ public class NBAScraperServiceImpl implements ScraperService {
     }
 
     @Override
-    @Cacheable(value = "teams", key = "#year")
+    @Cacheable(value = "nbaTeams", key = "#year")
     public List<TeamPerGameDto> getTeamPerGameStats(int year) {
         System.out.println("Getting teams for " + year);
         List<TeamPerGameDto> responseDtos = new ArrayList<>();
@@ -155,7 +160,7 @@ public class NBAScraperServiceImpl implements ScraperService {
                 if (!StringUtils.isEmpty(teamsList.get(i).text())) {
                     Elements columns = teamsList.get(i).getElementsByTag(ScrapingConstants.TABLE_DATA_TAG);
                     if (!columns.isEmpty()) {
-                        responseDtos.add(MapperUtils.mapTeamPerGameStatsRow(columns));
+                        responseDtos.add(NBAPlayerMapperUtils.mapTeamPerGameStatsRow(columns));
                     }
                 }
             }
@@ -163,7 +168,8 @@ public class NBAScraperServiceImpl implements ScraperService {
             Element tableFooter = table.getElementsByTag(ScrapingConstants.TABLE_FOOTER).get(0);
             Element footerRow = tableFooter.getElementsByTag(ScrapingConstants.TABLE_ROW_TAG).get(0);
             responseDtos.add(
-                    MapperUtils.mapTeamPerGameStatsRow(footerRow.getElementsByTag(ScrapingConstants.TABLE_DATA_TAG)));
+                    NBAPlayerMapperUtils
+                            .mapTeamPerGameStatsRow(footerRow.getElementsByTag(ScrapingConstants.TABLE_DATA_TAG)));
         } catch (IOException ex) {
             ex.printStackTrace();
         }

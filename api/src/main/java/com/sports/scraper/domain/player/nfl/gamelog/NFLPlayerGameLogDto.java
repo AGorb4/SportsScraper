@@ -1,4 +1,4 @@
-package com.sports.scraper.domain.player.nfl;
+package com.sports.scraper.domain.player.nfl.gamelog;
 
 import com.sports.scraper.domain.player.PlayerGameLogDto;
 
@@ -18,6 +18,7 @@ public class NFLPlayerGameLogDto extends PlayerGameLogDto {
     private int pointsScored;
 
     // tackles
+    private int sacks;
     private int soloTackles;
     private int assistedTackles;
     private int tacklesCombo;

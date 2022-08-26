@@ -15,5 +15,6 @@ public class PlayerGameLogDto {
     private String opponent;
     private String result;
     private String reason;
+    private boolean isPlayoffGame;
 
 }

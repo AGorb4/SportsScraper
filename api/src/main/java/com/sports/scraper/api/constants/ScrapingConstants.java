@@ -26,4 +26,8 @@ public class ScrapingConstants {
     // img
     public static final String IMG_ELEMENT = "img[src$=.jpg]";
 
+    // a
+    public static final String A_HREF = "a[href]";
+    public static final String HREF = "href";
+
 }

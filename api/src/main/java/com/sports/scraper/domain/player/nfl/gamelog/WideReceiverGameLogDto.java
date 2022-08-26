@@ -1,4 +1,4 @@
-package com.sports.scraper.domain.player.nfl;
+package com.sports.scraper.domain.player.nfl.gamelog;
 
 import lombok.Data;
 
