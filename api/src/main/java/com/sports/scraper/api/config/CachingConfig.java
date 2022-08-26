@@ -17,8 +17,10 @@ public class CachingConfig {
     public CacheManager cacheManager() {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
         cacheManager.setCaches(Arrays.asList(
-                new ConcurrentMapCache("teams"),
-                new ConcurrentMapCache("playerGameLogForYear")));
+                new ConcurrentMapCache("nbaTeams"),
+                new ConcurrentMapCache("nbaPlayerGameLogForYear"),
+                new ConcurrentMapCache("nflPlayerGameLogForYear"),
+                new ConcurrentMapCache("allNFLPlayersFantasyStats")));
         return cacheManager;
     }
 }
