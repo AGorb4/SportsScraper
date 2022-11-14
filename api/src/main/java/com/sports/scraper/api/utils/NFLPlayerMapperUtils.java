@@ -1,22 +1,37 @@
 package com.sports.scraper.api.utils;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.select.Elements;
 
 import com.sports.scraper.domain.player.nfl.gamelog.NFLPlayerGameLogDto;
-import com.sports.scraper.domain.player.nfl.gamelog.NFLPlayerGameLogFactory;
-import com.sports.scraper.domain.player.nfl.gamelog.WideReceiverGameLogDto;
+import com.sports.scraper.domain.player.nfl.stats.FumbleStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.KickReturnStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.PassingStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.ReceivingStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.RushingStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.ScoringStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.SnapStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.TacklingStatsDto;
 import com.sports.scraper.domain.player.nfl.fantasy.NFLPlayerFantasyStatsDto;
 import com.sports.scraper.domain.player.nfl.fantasy.NFLPlayerFantasyStatsFactory;
 
 public class NFLPlayerMapperUtils {
 
+    private static Map<String, Integer> columnCountMap;
+
     private NFLPlayerMapperUtils() {
         throw new IllegalStateException("Utility class");
     }
 
-    public static NFLPlayerGameLogDto mapNFLPlayerGameLogDto(Elements columns, String position) {
-        NFLPlayerGameLogDto nflPlayerGameLogDto = NFLPlayerGameLogFactory.createNFLPlayerGameLog(position);
+    public static NFLPlayerGameLogDto mapNFLPlayerGameLogDto(Elements columns,
+            List<String> statCategoriesList) {
+        NFLPlayerGameLogDto nflPlayerGameLogDto = new NFLPlayerGameLogDto();
         nflPlayerGameLogDto.setDate(columns.get(0).text());
         nflPlayerGameLogDto.setGameCount(MapperUtils.getInteger(columns.get(1).text()));
         nflPlayerGameLogDto.setWeek(MapperUtils.getInteger(columns.get(2).text()));
@@ -26,17 +41,56 @@ public class NFLPlayerMapperUtils {
         nflPlayerGameLogDto.setOpponent(columns.get(6).text());
         nflPlayerGameLogDto.setResult(columns.get(7).text());
         nflPlayerGameLogDto.setStartedGame(columns.get(8).text().contains("*"));
+        int i = 8;
+        if (nflPlayerGameLogDto.isStartedGame()) {
+            for (String s : statCategoriesList) {
+                if (s.equalsIgnoreCase("Receiving")) {
+                    mapReceivingStatsGameLog(i, columns, nflPlayerGameLogDto);
+                    i = i + 7;
+                } else if (s.equalsIgnoreCase("Rushing")) {
+                    mapRushingStatsGameLog(i, columns, nflPlayerGameLogDto);
+                    i = i + 4;
+                } else if (s.equalsIgnoreCase("Passing")) {
+                    mapPassingStatsGameLog(i, columns, nflPlayerGameLogDto);
+                    i = i + 11;
+                } else if (s.contains("Returns")) {
+                    KickReturnStatsDto kickReturnStatsDto = new KickReturnStatsDto();
+                    kickReturnStatsDto.setReturns(MapperUtils.getInteger(columns.get(++i).text()));
+                    kickReturnStatsDto.setYards(MapperUtils.getInteger(columns.get(++i).text()));
+                    kickReturnStatsDto.setYardsPerReturn(columns.get(++i).text());
+                    kickReturnStatsDto.setReturnTouchdowns(MapperUtils.getInteger(columns.get(++i).text()));
 
-        if (nflPlayerGameLogDto instanceof WideReceiverGameLogDto) {
-            ((WideReceiverGameLogDto) nflPlayerGameLogDto).setTargets(MapperUtils.getInteger(columns.get(9).text()));
-            ((WideReceiverGameLogDto) nflPlayerGameLogDto)
-                    .setReceptions(MapperUtils.getInteger(columns.get(10).text()));
-            ((WideReceiverGameLogDto) nflPlayerGameLogDto).setYards(MapperUtils.getInteger(columns.get(11).text()));
-            ((WideReceiverGameLogDto) nflPlayerGameLogDto).setYardsPerReception(columns.get(12).text());
-            ((WideReceiverGameLogDto) nflPlayerGameLogDto)
-                    .setReceivingTouchdowns(MapperUtils.getInteger(columns.get(13).text()));
-            ((WideReceiverGameLogDto) nflPlayerGameLogDto).setCatchPercentage(columns.get(14).text());
-            ((WideReceiverGameLogDto) nflPlayerGameLogDto).setYardsPerTarget(columns.get(15).text());
+                    if (s.contains("Kick")) {
+                        nflPlayerGameLogDto.setKickReturnStats(kickReturnStatsDto);
+                    } else if (s.contains("Punt")) {
+                        nflPlayerGameLogDto.setPuntReturnStats(kickReturnStatsDto);
+                    }
+                } else if (s.equalsIgnoreCase("Scoring")) {
+                    mapScoringStatsGameLog(i, columns, nflPlayerGameLogDto);
+                    i = i + 2;
+                } else if (s.equalsIgnoreCase("Tackles")) {
+                    mapTacklesStatsGameLog(i, columns, nflPlayerGameLogDto);
+                    i = i + 6;
+                } else if (s.equalsIgnoreCase("Fumbles")) {
+                    mapFumbleStatsGameLog(i, columns, nflPlayerGameLogDto);
+                    i = i + 6;
+                } else if (s.equalsIgnoreCase("Snaps")) {
+                    SnapStatsDto snapStatsDto = new SnapStatsDto();
+                    snapStatsDto.setSnapsNum(MapperUtils.getInteger(columns.get(++i).text()));
+                    snapStatsDto.setSnapsPct(columns.get(++i).text());
+                    if (s.contains("Def")) {
+                        nflPlayerGameLogDto.setDefSnapStats(snapStatsDto);
+                    } else if (s.contains("Off")) {
+                        nflPlayerGameLogDto.setOffSnapStats(snapStatsDto);
+                    } else if (s.contains("ST")) {
+                        nflPlayerGameLogDto.setStSnapStats(snapStatsDto);
+                    }
+                    i = i + 2;
+                }
+                System.out.println("Stat " + s + " i " + i);
+            }
+        } else {
+            nflPlayerGameLogDto.setReason(columns.get(8).text());
         }
 
         return nflPlayerGameLogDto;
@@ -110,96 +164,80 @@ public class NFLPlayerMapperUtils {
         return nflPlayerFantasyStatsDto;
     }
 
-    // private static RunningBackFantasyStatsDto
-    // mapNFLRunningBackFantasyStatsRow(Elements columns,
-    // RunningBackFantasyStatsDto runningBackFantasyStatsDto) {
-    // // rushing stats
-    // runningBackFantasyStatsDto.setRushingAttempts(MapperUtils.getInteger(columns.get(11).text()));
-    // runningBackFantasyStatsDto.setRushingYards(MapperUtils.getInteger(columns.get(12).text()));
-    // runningBackFantasyStatsDto.setRushingYardsPerAttempt(columns.get(13).text());
-    // runningBackFantasyStatsDto.setRushingTouchdowns(MapperUtils.getInteger(columns.get(14).text()));
+    public static void mapStatCategory(int i, String category, Elements columns) {
+        Integer columnsInCategory = columnCountMap.get(category);
 
-    // // receiving stats
-    // runningBackFantasyStatsDto.setTargets(MapperUtils.getInteger(columns.get(15).text()));
-    // runningBackFantasyStatsDto.setReceptions(MapperUtils.getInteger(columns.get(16).text()));
-    // runningBackFantasyStatsDto.setReceivingYards(MapperUtils.getInteger(columns.get(17).text()));
-    // runningBackFantasyStatsDto.setReceivingYardsPerReception(columns.get(18).text());
-    // runningBackFantasyStatsDto.setReceivingTouchdowns(MapperUtils.getInteger(columns.get(19).text()));
-    // return runningBackFantasyStatsDto;
-    // }
+    }
 
-    // private static WideReceiverFantasyStatsDto
-    // mapNFLWideReceiverFantasyStatsRow(Elements columns,
-    // WideReceiverFantasyStatsDto wideReceiverFantasyStatsDto) {
-    // // rushing stats
-    // wideReceiverFantasyStatsDto.setRushingAttempts(MapperUtils.getInteger(columns.get(11).text()));
-    // wideReceiverFantasyStatsDto.setRushingYards(MapperUtils.getInteger(columns.get(12).text()));
-    // wideReceiverFantasyStatsDto.setRushingYardsPerAttempt(columns.get(13).text());
-    // wideReceiverFantasyStatsDto.setRushingTouchdowns(MapperUtils.getInteger(columns.get(14).text()));
+    private static void mapReceivingStatsGameLog(int i, Elements columns, NFLPlayerGameLogDto gameLogDto) {
+        ReceivingStatsDto receivingStats = new ReceivingStatsDto();
+        receivingStats.setTargets(MapperUtils.getInteger(columns.get(++i).text()));
+        receivingStats.setReceptions(MapperUtils.getInteger(columns.get(++i).text()));
+        receivingStats.setReceivingYards(MapperUtils.getInteger(columns.get(++i).text()));
+        receivingStats.setYardsPerReception(columns.get(++i).text());
+        receivingStats.setReceivingTouchdowns(MapperUtils.getInteger(columns.get(++i).text()));
+        receivingStats.setCatchPercentage(columns.get(++i).text());
+        receivingStats.setYardsPerTarget(columns.get(++i).text());
+        gameLogDto.setReceivingStats(receivingStats);
+    }
 
-    // // receiving stats
-    // wideReceiverFantasyStatsDto.setTargets(MapperUtils.getInteger(columns.get(15).text()));
-    // wideReceiverFantasyStatsDto.setReceptions(MapperUtils.getInteger(columns.get(16).text()));
-    // wideReceiverFantasyStatsDto.setReceivingYards(MapperUtils.getInteger(columns.get(17).text()));
-    // wideReceiverFantasyStatsDto.setReceivingYardsPerReception(columns.get(18).text());
-    // wideReceiverFantasyStatsDto.setReceivingTouchdowns(MapperUtils.getInteger(columns.get(19).text()));
-    // return wideReceiverFantasyStatsDto;
-    // }
+    private static void mapRushingStatsGameLog(int i, Elements columns, NFLPlayerGameLogDto gameLogDto) {
+        RushingStatsDto rushingStats = new RushingStatsDto();
+        rushingStats.setRushingAttempts(MapperUtils.getInteger(columns.get(++i).text()));
+        rushingStats.setRushingYards(MapperUtils.getInteger(columns.get(++i).text()));
+        rushingStats.setRushingYardsPerCarry(columns.get(++i).text());
+        rushingStats.setRushingTouchdowns(MapperUtils.getInteger(columns.get(++i).text()));
+        gameLogDto.setRushingStats(rushingStats);
+    }
 
-    // private static TightEndFantasyStatsDto mapNFLTightEndFantasyStatsRow(Elements
-    // columns,
-    // TightEndFantasyStatsDto tightEndFantasyStatsDto) {
-    // // rushing stats
-    // tightEndFantasyStatsDto.setRushingAttempts(MapperUtils.getInteger(columns.get(11).text()));
-    // tightEndFantasyStatsDto.setRushingYards(MapperUtils.getInteger(columns.get(12).text()));
-    // tightEndFantasyStatsDto.setRushingYardsPerAttempt(columns.get(13).text());
-    // tightEndFantasyStatsDto.setRushingTouchdowns(MapperUtils.getInteger(columns.get(14).text()));
+    private static void mapPassingStatsGameLog(int i, Elements columns, NFLPlayerGameLogDto gameLogDto) {
+        PassingStatsDto passingStatsDto = new PassingStatsDto();
+        passingStatsDto.setPassesCompleted(MapperUtils.getInteger(columns.get(++i).text()));
+        passingStatsDto.setPassesAttempted(MapperUtils.getInteger(columns.get(++i).text()));
+        passingStatsDto.setCompletionPercentage(columns.get(++i).text());
+        passingStatsDto.setPassingYards(MapperUtils.getInteger(columns.get(++i).text()));
+        passingStatsDto.setPassingTouchdowns(MapperUtils.getInteger(columns.get(++i).text()));
+        passingStatsDto.setInterceptions(MapperUtils.getInteger(columns.get(++i).text()));
+        passingStatsDto.setPasserRating(columns.get(++i).text());
+        passingStatsDto.setSacks(MapperUtils.getInteger(columns.get(++i).text()));
+        passingStatsDto.setSackYards(MapperUtils.getInteger(columns.get(++i).text()));
+        passingStatsDto.setPassingYardsPerAttempt(columns.get(++i).text());
+        passingStatsDto.setAirYardsPerAttempt(columns.get(++i).text());
+        gameLogDto.setPassingStats(passingStatsDto);
+    }
 
-    // // receiving stats
-    // tightEndFantasyStatsDto.setTargets(MapperUtils.getInteger(columns.get(15).text()));
-    // tightEndFantasyStatsDto.setReceptions(MapperUtils.getInteger(columns.get(16).text()));
-    // tightEndFantasyStatsDto.setReceivingYards(MapperUtils.getInteger(columns.get(17).text()));
-    // tightEndFantasyStatsDto.setReceivingYardsPerReception(columns.get(18).text());
-    // tightEndFantasyStatsDto.setReceivingTouchdowns(MapperUtils.getInteger(columns.get(19).text()));
-    // return tightEndFantasyStatsDto;
-    // }
+    private static void mapScoringStatsGameLog(int i, Elements columns, NFLPlayerGameLogDto gameLogDto) {
+        ScoringStatsDto scoringStatsDto = new ScoringStatsDto();
+        scoringStatsDto.setTouchdowns(MapperUtils.getInteger(columns.get(++i).text()));
+        scoringStatsDto.setPointsScored(MapperUtils.getInteger(columns.get(++i).text()));
+        gameLogDto.setScoringStats(scoringStatsDto);
+    }
 
-    // private static QuarterBackFantasyStatsDto
-    // mapNFLQuarterBackFantasyStatsRow(Elements columns,
-    // QuarterBackFantasyStatsDto quarterBackFantasyStatsDto) {
-    // // passing stats
-    // quarterBackFantasyStatsDto.setPassesCompleted(MapperUtils.getInteger(columns.get(6).text()));
-    // quarterBackFantasyStatsDto.setPassesAttempted(MapperUtils.getInteger(columns.get(7).text()));
-    // quarterBackFantasyStatsDto.setPassingYards(MapperUtils.getInteger(columns.get(8).text()));
-    // quarterBackFantasyStatsDto.setPassingTouchdowns(MapperUtils.getInteger(columns.get(9).text()));
-    // quarterBackFantasyStatsDto.setInterceptions(MapperUtils.getInteger(columns.get(10).text()));
+    private static void mapTacklesStatsGameLog(int i, Elements columns, NFLPlayerGameLogDto gameLogDto) {
+        TacklingStatsDto tacklingStats = new TacklingStatsDto();
+        tacklingStats.setSacks(columns.get(++i).text());
+        tacklingStats.setSoloTackles(MapperUtils.getInteger(columns.get(++i).text()));
+        tacklingStats.setAssistedTackles(MapperUtils.getInteger(columns.get(++i).text()));
+        tacklingStats.setTacklesCombo(MapperUtils.getInteger(columns.get(++i).text()));
+        if (!columns.get(i + 1).text().isBlank()) {
+            tacklingStats.setTacklesForLoss(MapperUtils.getInteger(columns.get(++i).text()));
+        }
+        if (!columns.get(i + 1).text().isBlank()) {
+            tacklingStats.setQbHits(MapperUtils.getInteger(columns.get(++i).text()));
+        }
+        gameLogDto.setTacklingStats(tacklingStats);
+    }
 
-    // // rushing stats
-    // quarterBackFantasyStatsDto.setRushingAttempts(MapperUtils.getInteger(columns.get(11).text()));
-    // quarterBackFantasyStatsDto.setRushingYards(MapperUtils.getInteger(columns.get(12).text()));
-    // quarterBackFantasyStatsDto.setRushingYardsPerAttempt(columns.get(13).text());
-    // quarterBackFantasyStatsDto.setRushingTouchdowns(MapperUtils.getInteger(columns.get(14).text()));
-    // return quarterBackFantasyStatsDto;
-    // }
-
-    // public static WideReceiverGameLogDto mapNFLPlayerGameLogRow(Elements columns)
-    // {
-    // WideReceiverGameLogDto responseDto = new WideReceiverGameLogDto();
-    // responseDto.setDate(columns.get(0).text());
-    // responseDto.setGameCount(MapperUtils.getInteger(columns.get(1).text()));
-    // responseDto.setWeek(MapperUtils.getInteger(columns.get(2).text()));
-    // responseDto.setAge(columns.get(3).text());
-    // responseDto.setTeam(columns.get(4).text());
-    // // responseDto.setAway(getIsAway(columns.get(5).text()));
-    // responseDto.setOpponent(columns.get(6).text());
-    // responseDto.setResult(columns.get(7).text());
-    // if (responseDto.getAge().isBlank()) {
-    // responseDto.setReason(columns.get(8).text());
-    // return responseDto;
-    // }
-    // responseDto.setStartedGame(columns.get(8).text().equalsIgnoreCase("*"));
-    // return responseDto;
-    // }
+    private static void mapFumbleStatsGameLog(int i, Elements columns, NFLPlayerGameLogDto gameLogDto) {
+        FumbleStatsDto fumbleStats = new FumbleStatsDto();
+        fumbleStats.setFumbles(MapperUtils.getInteger(columns.get(++i).text()));
+        fumbleStats.setFumblesLost(MapperUtils.getInteger(columns.get(++i).text()));
+        fumbleStats.setFumblesForced(MapperUtils.getInteger(columns.get(++i).text()));
+        fumbleStats.setFumblesRecovered(MapperUtils.getInteger(columns.get(++i).text()));
+        fumbleStats.setFumbleYards(columns.get(++i).text());
+        fumbleStats.setFumblesTouchdowns(MapperUtils.getInteger(columns.get(++i).text()));
+        gameLogDto.setFumbleStats(fumbleStats);
+    }
 
     public static String getNFLPlayerFantasyPosition(Elements playerAttributes) {
         String playerPosition = playerAttributes.get(2).text();
@@ -207,5 +245,19 @@ public class NFLPlayerMapperUtils {
             return playerPosition;
         }
         return null;
+    }
+
+    @PostConstruct
+    private static Map<String, Integer> constructColumnCountMap() {
+        columnCountMap = new HashMap<>();
+        columnCountMap.put("Receiving", 7);
+        columnCountMap.put("Rushing", 4);
+        columnCountMap.put("Passing", 11);
+        columnCountMap.put("Kick Returns", 4);
+        columnCountMap.put("Scoring", 2);
+        columnCountMap.put("Tackles", 6);
+        columnCountMap.put("Fumbles", 6);
+        columnCountMap.put("Snaps", 2);
+        return columnCountMap;
     }
 }

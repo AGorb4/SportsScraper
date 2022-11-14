@@ -30,18 +30,20 @@ public class PropsController {
         return ResponseEntity.ok(propsService.getPropTypes());
     }
 
-    @GetMapping(path = "/events")
-    public ResponseEntity<List<Event>> getEvents() {
-        return ResponseEntity.ok(propsService.getEvents());
+    @GetMapping(path = "{league}/events")
+    public ResponseEntity<List<Event>> getEvents(@PathVariable String league) {
+        return ResponseEntity.ok(propsService.getEvents(league));
     }
 
-    @GetMapping(path = "/statistics/{year}/{propType}/{propTotal}/{playerName}/{lastNInput}")
-    public ResponseEntity<PlayerPropStatisticsDto> getPlayerPropStatistics(@PathVariable String playerName,
+    @GetMapping(path = "/{league}/statistics/{year}/{propType}/{propTotal}/{playerName}/{lastNInput}")
+    public ResponseEntity<PlayerPropStatisticsDto> getPlayerPropStatistics(@PathVariable String league,
+            @PathVariable String playerName,
             @PathVariable int year, @PathVariable String propType, @PathVariable float propTotal,
             @PathVariable int lastNInput) {
         System.out.println("Getting prop stats for " + playerName);
         return ResponseEntity.ok(
-                propsService.getPlayerPropStatistics(playerName, propType, propTotal, lastNInput, "", year, true));
+                propsService.getPlayerPropStatistics(league, playerName, propType, propTotal, lastNInput, "", year,
+                        true));
     }
 
     @PostMapping(path = "/statistics/report")

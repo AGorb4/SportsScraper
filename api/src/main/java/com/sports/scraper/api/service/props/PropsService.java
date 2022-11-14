@@ -12,9 +12,10 @@ public interface PropsService {
 
         List<OfferCategory> getPropTypes();
 
-        List<Event> getEvents();
+        List<Event> getEvents(String league);
 
-        PlayerPropStatisticsDto getPlayerPropStatistics(String playerName, String propType, float propTotal,
+        PlayerPropStatisticsDto getPlayerPropStatistics(String league, String playerName, String propType,
+                        float propTotal,
                         int lastNInput,
                         String againstTeam,
                         int year,
