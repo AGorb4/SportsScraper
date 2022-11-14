@@ -1,6 +1,14 @@
 package com.sports.scraper.domain.player.nfl.gamelog;
 
 import com.sports.scraper.domain.player.PlayerGameLogDto;
+import com.sports.scraper.domain.player.nfl.stats.FumbleStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.KickReturnStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.PassingStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.ReceivingStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.RushingStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.ScoringStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.SnapStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.TacklingStatsDto;
 
 import lombok.Data;
 
@@ -13,36 +21,16 @@ public class NFLPlayerGameLogDto extends PlayerGameLogDto {
 
     private int week;
 
-    // scoring
-    private int touchdowns;
-    private int pointsScored;
-
-    // tackles
-    private int sacks;
-    private int soloTackles;
-    private int assistedTackles;
-    private int tacklesCombo;
-    private int tacklesForLoss;
-    private int qbHits;
-
-    // fumbles
-    private int fumbles;
-    private int fumblesLost;
-    private int fumblesForced;
-    private int fumblesRecovered;
-    private int fumbleYards;
-    private int fumblesTouchdowns;
-
-    // offensive snaps
-    private int offSnapsNum;
-    private String offSnapsPct;
-
-    // defensive snaps
-    private int defSnapsNum;
-    private String defSnapsPct;
-
-    // special teams snaps
-    private int stSnapsNum;
-    private String stSnapsPct;
+    private PassingStatsDto passingStats;
+    private RushingStatsDto rushingStats;
+    private ReceivingStatsDto receivingStats;
+    private ScoringStatsDto scoringStats;
+    private FumbleStatsDto fumbleStats;
+    private KickReturnStatsDto kickReturnStats;
+    private KickReturnStatsDto puntReturnStats;
+    private TacklingStatsDto tacklingStats;
+    private SnapStatsDto offSnapStats;
+    private SnapStatsDto defSnapStats;
+    private SnapStatsDto stSnapStats;
 
 }

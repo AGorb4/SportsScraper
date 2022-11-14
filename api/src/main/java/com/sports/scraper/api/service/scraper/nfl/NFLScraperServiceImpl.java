@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -62,14 +63,25 @@ public class NFLScraperServiceImpl implements ScraperService {
             Document document = Jsoup.connect(url).get();
             Elements tables = document.getElementsByTag(ScrapingConstants.TABLE_BODY_TAG);
 
+            Elements tableHeaders = document.getElementsByTag("table").get(0).getElementsByTag("thead").get(0)
+                    .getElementsByTag("tr").get(0).getElementsByTag("th");
+
             Elements gamesList = tables.get(0).getElementsByTag(ScrapingConstants.TABLE_ROW_TAG);
+
+            List<String> statsList = new ArrayList<>();
+
+            for (Element header : tableHeaders) {
+                if (!header.text().isBlank()) {
+                    statsList.add(header.text());
+                }
+            }
 
             for (int i = 0; i < gamesList.size(); i++) {
                 if (!StringUtils.isEmpty(gamesList.get(i).text())) {
                     Elements columns = gamesList.get(i).getElementsByTag(ScrapingConstants.TABLE_DATA_TAG);
                     if (!columns.isEmpty()) {
                         NFLPlayerGameLogDto playerGameLog = NFLPlayerMapperUtils.mapNFLPlayerGameLogDto(columns,
-                                player.getPosition());
+                                statsList);
                         playerGameLog.setPlayoffGame(false);
                         playerGameLogs.add(playerGameLog);
                     }
@@ -78,13 +90,20 @@ public class NFLScraperServiceImpl implements ScraperService {
 
             if (tables.size() > 1) {
                 gamesList = tables.get(1).getElementsByTag(ScrapingConstants.TABLE_ROW_TAG);
-
+                tableHeaders = document.getElementsByTag("table").get(1).getElementsByTag("thead").get(0)
+                        .getElementsByTag("tr").get(0).getElementsByTag("th");
+                statsList.clear();
+                for (Element header : tableHeaders) {
+                    if (!header.text().isBlank()) {
+                        statsList.add(header.text());
+                    }
+                }
                 for (int i = 0; i < gamesList.size(); i++) {
                     if (!StringUtils.isEmpty(gamesList.get(i).text())) {
                         Elements columns = gamesList.get(i).getElementsByTag(ScrapingConstants.TABLE_DATA_TAG);
                         if (!columns.isEmpty()) {
                             NFLPlayerGameLogDto playerGameLog = NFLPlayerMapperUtils.mapNFLPlayerGameLogDto(columns,
-                                    player.getPosition());
+                                    statsList);
                             playerGameLog.setPlayoffGame(true);
                             playerGameLogs.add(playerGameLog);
                         }
@@ -170,5 +189,12 @@ public class NFLScraperServiceImpl implements ScraperService {
             e.printStackTrace();
         }
         return fantasyStatsDtos;
+    }
+
+    // get player fantasy stats by player name
+    public NFLPlayerFantasyStatsDto getNFLPlayerFantasyStats(String playerName, int year) {
+        Optional<NFLPlayerFantasyStatsDto> playerFantasyStats = getAllNFLPlayersFantasyStats(year).stream()
+                .filter(player -> player.getPlayerName().equalsIgnoreCase(playerName)).findFirst();
+        return playerFantasyStats.isPresent() ? playerFantasyStats.get() : null;
     }
 }

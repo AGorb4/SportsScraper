@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class PlayerPropStatisticsReportRequest {
+    private String league;
     private int year;
     private int lastN;
     private List<PropStatisticsReportRequest> propStatisticsReportRequestList;

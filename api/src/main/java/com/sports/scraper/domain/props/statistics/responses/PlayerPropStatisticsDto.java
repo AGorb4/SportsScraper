@@ -2,7 +2,7 @@ package com.sports.scraper.domain.props.statistics.responses;
 
 import java.util.List;
 
-import com.sports.scraper.domain.player.nba.NBAPlayerGameLogDto;
+import com.sports.scraper.domain.player.PlayerGameLogDto;
 
 import lombok.Data;
 
@@ -17,5 +17,5 @@ public class PlayerPropStatisticsDto {
     private int gamesStarted;
     private String lastNRecord;
     private int lastNWinPercentage;
-    private List<NBAPlayerGameLogDto> gameLog;
+    private List<PlayerGameLogDto> gameLog;
 }

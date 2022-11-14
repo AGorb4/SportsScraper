@@ -8,12 +8,4 @@ public class WideReceiverGameLogDto extends NFLPlayerGameLogDto {
         super();
     }
 
-    private int targets;
-    private int receptions;
-    private int yards;
-    private String yardsPerReception;
-    private int receivingTouchdowns;
-
-    private String catchPercentage;
-    private String yardsPerTarget;
 }

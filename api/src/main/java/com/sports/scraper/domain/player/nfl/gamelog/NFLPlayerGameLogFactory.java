@@ -2,6 +2,10 @@ package com.sports.scraper.domain.player.nfl.gamelog;
 
 public class NFLPlayerGameLogFactory {
 
+    private NFLPlayerGameLogFactory() {
+        throw new IllegalStateException("Factory class");
+    }
+
     public static NFLPlayerGameLogDto createNFLPlayerGameLog(String position) {
         if (position == null)
             return null;
