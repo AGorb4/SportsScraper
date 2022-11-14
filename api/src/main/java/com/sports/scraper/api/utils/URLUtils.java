@@ -24,7 +24,8 @@ public class URLUtils {
 
     public static Map<String, String> getDraftkingsUrlMap() {
         if (draftkingsUrlMap == null) {
-            return new HashMap<>();
+            createDraftkingsUrlMap();
+            return draftkingsUrlMap;
         }
         return draftkingsUrlMap;
     }
