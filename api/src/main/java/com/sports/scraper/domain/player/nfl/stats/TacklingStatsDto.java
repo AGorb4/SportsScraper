@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class TacklingStatsDto {
     private String sacks;
-    private int soloTackles;
+    private String soloTackles;
     private int assistedTackles;
     private int tacklesCombo;
     private int tacklesForLoss;

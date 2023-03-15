@@ -42,7 +42,7 @@ public class NFLPlayerMapperUtils {
         nflPlayerGameLogDto.setResult(columns.get(7).text());
         nflPlayerGameLogDto.setStartedGame(columns.get(8).text().contains("*"));
         int i = 8;
-        if (nflPlayerGameLogDto.isStartedGame()) {
+        if (columns.get(8).text().length() < 2) {
             for (String s : statCategoriesList) {
                 if (s.equalsIgnoreCase("Receiving")) {
                     mapReceivingStatsGameLog(i, columns, nflPlayerGameLogDto);
@@ -134,19 +134,6 @@ public class NFLPlayerMapperUtils {
         nflPlayerFantasyStatsDto.setReceivingYardsPerReception(columns.get(18).text());
         nflPlayerFantasyStatsDto.setReceivingTouchdowns(MapperUtils.getInteger(columns.get(19).text()));
 
-        // if (nflPlayerFantasyStatsDto.getPosition().equalsIgnoreCase("RB")) {
-        // mapNFLRunningBackFantasyStatsRow(columns,
-        // (RunningBackFantasyStatsDto) nflPlayerFantasyStatsDto);
-        // } else if (nflPlayerFantasyStatsDto.getPosition().equalsIgnoreCase("WR")) {
-        // mapNFLWideReceiverFantasyStatsRow(columns,
-        // (WideReceiverFantasyStatsDto) nflPlayerFantasyStatsDto);
-        // } else if (nflPlayerFantasyStatsDto.getPosition().equalsIgnoreCase("TE")) {
-        // mapNFLTightEndFantasyStatsRow(columns,
-        // (TightEndFantasyStatsDto) nflPlayerFantasyStatsDto);
-        // } else {
-        // return new NFLPlayerFantasyStatsDto();
-        // }
-
         // fumbles
         nflPlayerFantasyStatsDto.setFumbles(MapperUtils.getInteger(columns.get(20).text()));
         nflPlayerFantasyStatsDto.setFumblesLost(MapperUtils.getInteger(columns.get(21).text()));
@@ -199,7 +186,7 @@ public class NFLPlayerMapperUtils {
         passingStatsDto.setPassingTouchdowns(MapperUtils.getInteger(columns.get(++i).text()));
         passingStatsDto.setInterceptions(MapperUtils.getInteger(columns.get(++i).text()));
         passingStatsDto.setPasserRating(columns.get(++i).text());
-        passingStatsDto.setSacks(MapperUtils.getInteger(columns.get(++i).text()));
+        passingStatsDto.setSacks(columns.get(++i).text());
         passingStatsDto.setSackYards(MapperUtils.getInteger(columns.get(++i).text()));
         passingStatsDto.setPassingYardsPerAttempt(columns.get(++i).text());
         passingStatsDto.setAirYardsPerAttempt(columns.get(++i).text());
@@ -216,7 +203,7 @@ public class NFLPlayerMapperUtils {
     private static void mapTacklesStatsGameLog(int i, Elements columns, NFLPlayerGameLogDto gameLogDto) {
         TacklingStatsDto tacklingStats = new TacklingStatsDto();
         tacklingStats.setSacks(columns.get(++i).text());
-        tacklingStats.setSoloTackles(MapperUtils.getInteger(columns.get(++i).text()));
+        tacklingStats.setSoloTackles(columns.get(++i).text());
         tacklingStats.setAssistedTackles(MapperUtils.getInteger(columns.get(++i).text()));
         tacklingStats.setTacklesCombo(MapperUtils.getInteger(columns.get(++i).text()));
         if (!columns.get(i + 1).text().isBlank()) {

@@ -6,18 +6,18 @@ public class PropTypeConstants {
     }
 
     // nba
-    public static final String POINTS = "pts";
-    public static final String THREES = "3pt";
-    public static final String ASSISTS = "ast";
-    public static final String REBOUNDS = "reb";
-    public static final String STEALS = "stl";
-    public static final String BLOCKS = "blk";
-    public static final String TURNOVERS = "to";
+    public static final String POINTS = "points";
+    public static final String THREES = "threes";
+    public static final String ASSISTS = "assists";
+    public static final String REBOUNDS = "rebounds";
+    public static final String STEALS = "steals";
+    public static final String BLOCKS = "blocks";
+    public static final String TURNOVERS = "turnovers";
     public static final String POINTS_REBOUNDS_ASSISTS = "ptsRebAst";
     public static final String POINTS_REBOUNDS = "ptsReb";
     public static final String POINTS_ASSISTS = "ptsAst";
-    public static final String ASSISTS_REBOUNDS = "astsReb";
-    public static final String STEALS_BLOCKS = "stlsBlk";
+    public static final String ASSISTS_REBOUNDS = "astReb";
+    public static final String STEALS_BLOCKS = "stlBlk";
 
     // nfl
     public static final String PASSING_YARDS = "passingYards";

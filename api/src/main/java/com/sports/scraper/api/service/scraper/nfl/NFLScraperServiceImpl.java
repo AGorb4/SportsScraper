@@ -22,13 +22,61 @@ import com.sports.scraper.api.service.scraper.ScraperService;
 import com.sports.scraper.api.utils.NFLPlayerMapperUtils;
 import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
 import com.sports.scraper.domain.player.PlayerGameLogDto;
+import com.sports.scraper.domain.player.PlayerNameDto;
 import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
+import com.sports.scraper.domain.player.nfl.NFLPlayerProfileDto;
 import com.sports.scraper.domain.player.nfl.fantasy.NFLPlayerFantasyStatsDto;
 import com.sports.scraper.domain.player.nfl.gamelog.NFLPlayerGameLogDto;
+import com.sports.scraper.domain.player.nfl.stats.PassingStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.ReceivingStatsDto;
+import com.sports.scraper.domain.player.nfl.stats.RushingStatsDto;
 import com.sports.scraper.domain.team.TeamPerGameDto;
 
 @Service("nflScraperServiceImpl")
 public class NFLScraperServiceImpl implements ScraperService {
+
+    public List<PlayerNameDto> getAllPlayerNames(int year) {
+        List<PlayerNameDto> response = new ArrayList<>();
+        List<NFLPlayerFantasyStatsDto> allPlayers = getAllNFLPlayersFantasyStats(year);
+        for (NFLPlayerFantasyStatsDto fantasyStatsDto : allPlayers) {
+            if (!fantasyStatsDto.getPosition().isBlank()) {
+                PlayerNameDto playerName = new PlayerNameDto();
+                playerName.setName(fantasyStatsDto.getPlayerName());
+                playerName.setSystemName(fantasyStatsDto.getPlayerSystemName());
+                playerName.setPosition(fantasyStatsDto.getPosition());
+                playerName.setTeam(fantasyStatsDto.getTeam());
+                response.add(playerName);
+            }
+        }
+        if (response.size() > 0) {
+            response.sort(Comparator.comparing(PlayerNameDto::getName));
+        }
+        return response;
+    }
+
+    public NFLPlayerProfileDto getNflPlayerProfile(String playerName, int year) {
+        NFLPlayerProfileDto response = new NFLPlayerProfileDto();
+
+        // set the general info
+        NFLPlayerFantasyStatsDto player = getNFLPlayerFantasyStats(playerName, year);
+        response.setPlayerName(player.getPlayerName());
+        response.setAge(player.getAge());
+        response.setGamesCount(player.getGamesPlayed());
+        response.setGamesStartedCount(player.getGamesStarted());
+        response.setPlayerUrl(player.getPlayerUrl());
+        response.setPosition(player.getPosition());
+        response.setSystemName(player.getPlayerSystemName());
+        response.setTeam(player.getTeam());
+        response.setPlayerPictureUrl(getPlayerPictureUrl(response.getSystemName()));
+
+        // set the gamelog
+        List<PlayerGameLogDto> playerGameLog = getPlayerGameLogForYear(playerName, year, true);
+        response.setGameLog(playerGameLog);
+
+        setPlayerPositionAverageStats(response);
+
+        return response;
+    }
 
     @Override
     public List<PlayerPerGameStatsDto> getPlayersPerGameForSeason(int year, int pageSize) {
@@ -142,8 +190,22 @@ public class NFLScraperServiceImpl implements ScraperService {
 
     @Override
     public String getPlayerPictureUrl(String playerName) {
-        // TODO Auto-generated method stub
-        return null;
+        String url = "https://www.pro-football-reference.com/players/" + playerName.charAt(0) + "/"
+                + playerName + ".htm";
+        try {
+            Document document = getDocumentForURL(url);
+            Element pictureElement = document.select(ScrapingConstants.IMG_ELEMENT).get(0);
+            System.out.println(pictureElement);
+            if (pictureElement != null) {
+                return pictureElement.attr(ScrapingConstants.SRC);
+            } else {
+                System.out.println("Picture element is null");
+            }
+        } catch (ScrapingException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return "";
     }
 
     @Override
@@ -196,5 +258,67 @@ public class NFLScraperServiceImpl implements ScraperService {
         Optional<NFLPlayerFantasyStatsDto> playerFantasyStats = getAllNFLPlayersFantasyStats(year).stream()
                 .filter(player -> player.getPlayerName().equalsIgnoreCase(playerName)).findFirst();
         return playerFantasyStats.isPresent() ? playerFantasyStats.get() : null;
+    }
+
+    private void setPlayerPositionAverageStats(NFLPlayerProfileDto player) {
+        List<PlayerGameLogDto> playerGameLog = player.getGameLog();
+
+        String playerPosition = player.getPosition();
+        int yards = 0;
+        int touchdowns = 0;
+
+        if (playerPosition.equalsIgnoreCase("QB")) {
+            int interceptions = 0;
+
+            for (PlayerGameLogDto gamelog : playerGameLog) {
+                NFLPlayerGameLogDto game = (NFLPlayerGameLogDto) gamelog;
+                PassingStatsDto passingStats = game.getPassingStats();
+                if (passingStats != null) {
+                    yards += passingStats.getPassingYards();
+                    touchdowns += passingStats.getPassingTouchdowns();
+                    interceptions += passingStats.getInterceptions();
+                }
+            }
+
+            player.setYards(yards);
+            player.setTouchdowns(touchdowns);
+            player.setInterceptions(interceptions);
+
+        } else if (playerPosition.equalsIgnoreCase("RB")) {
+            int rushingAttempts = 0;
+
+            for (PlayerGameLogDto gamelog : playerGameLog) {
+                NFLPlayerGameLogDto game = (NFLPlayerGameLogDto) gamelog;
+                RushingStatsDto rushingStats = game.getRushingStats();
+                if (rushingStats != null) {
+                    rushingAttempts += rushingStats.getRushingAttempts();
+                    yards += rushingStats.getRushingYards();
+                    touchdowns += rushingStats.getRushingTouchdowns();
+                }
+            }
+
+            player.setRushingAttempts(rushingAttempts);
+            player.setYards(yards);
+            player.setTouchdowns(touchdowns);
+
+        } else {
+            int receptions = 0;
+
+            for (PlayerGameLogDto gamelog : playerGameLog) {
+                NFLPlayerGameLogDto game = (NFLPlayerGameLogDto) gamelog;
+                ReceivingStatsDto receivingStats = game.getReceivingStats();
+                if (receivingStats != null) {
+                    receptions += receivingStats.getReceptions();
+                    yards += receivingStats.getReceivingYards();
+                    touchdowns += receivingStats.getReceivingTouchdowns();
+                }
+            }
+
+            player.setReceptions(receptions);
+            player.setYards(yards);
+            player.setTouchdowns(touchdowns);
+
+        }
+
     }
 }

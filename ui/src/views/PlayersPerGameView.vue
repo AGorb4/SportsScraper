@@ -2,67 +2,31 @@
   <div style="padding: 10px">
     <h1>Players Per Game Stats</h1>
   </div>
-  <a
-    class="twitter-timeline"
-    data-width="500"
-    data-height="650"
-    data-dnt="true"
-    data-theme="dark"
-    href="https://twitter.com/FantasyLabsNBA?ref_src=twsrc%5Etfw"
-    >Tweets by FantasyLabsNBA</a
-  >
+  <a class="twitter-timeline" data-width="500" data-height="650" data-dnt="true" data-theme="dark"
+    href="https://twitter.com/FantasyLabsNBA?ref_src=twsrc%5Etfw">Tweets by FantasyLabsNBA</a>
   <div style="padding: 15px">
-    <DataTable
-      stripedRows
-      scrollHeight="60vh"
-      :value="players"
-      :paginator="true"
-      :rows="10"
-      dataKey="playerName"
-      v-model:filters="filters"
-      filterDisplay="menu"
+    <DataTable stripedRows scrollHeight="60vh" :value="players" :paginator="true" :rows="10" dataKey="playerName"
+      v-model:filters="filters" filterDisplay="menu"
       paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-      :rowsPerPageOptions="[10, 20, 50]"
-      responsiveLayout="scroll"
-      :globalFilterFields="['playerName']"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
-    >
+      :rowsPerPageOptions="[10, 20, 50]" responsiveLayout="scroll" :globalFilterFields="['playerName']"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords}">
       <template #header>
         <div class="flex justify-content-between">
-          <Button
-            type="button"
-            icon="pi pi-filter-slash"
-            label="Clear"
-            class="p-button-outlined"
-            @click="clearFilter()"
-          />
+          <Button type="button" icon="pi pi-filter-slash" label="Clear" class="p-button-outlined"
+            @click="clearFilter()" />
           <span class="p-input-icon-left">
             <i class="pi pi-search" />
-            <InputText
-              v-model="filters['global'].value"
-              placeholder="Keyword Search"
-            />
+            <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
           </span>
         </div>
         <div style="text-align: left">
-          <MultiSelect
-            :modelValue="selectedColumns"
-            :options="columns"
-            optionLabel="header"
-            @update:modelValue="onToggle"
-            placeholder="Select Columns"
-            style="width: 20em"
-          />
+          <MultiSelect :modelValue="selectedColumns" :options="columns" optionLabel="header"
+            @update:modelValue="onToggle" placeholder="Select Columns" style="width: 20em" />
         </div>
       </template>
       <Column field="playerName" header="Player Name" :sortable="true"></Column>
-      <Column
-        v-for="(col, index) of selectedColumns"
-        :field="col.field"
-        :header="col.header"
-        :sortable="col.sortable"
-        :key="col.field + '_' + index"
-      ></Column>
+      <Column v-for="(col, index) of selectedColumns" :field="col.field" :header="col.header" :sortable="col.sortable"
+        :key="col.field + '_' + index"></Column>
     </DataTable>
   </div>
 </template>

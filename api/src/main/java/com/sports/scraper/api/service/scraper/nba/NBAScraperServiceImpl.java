@@ -210,15 +210,19 @@ public class NBAScraperServiceImpl implements ScraperService {
         document = Jsoup.parse(document.toString().replaceAll(ScrapingConstants.COMMENT_REGEX, ""));
         Elements content = document.select(ScrapingConstants.DIV_CONTENT);
         Elements nestedDivs = content.select(ScrapingConstants.DIV);
-        Elements playoffGameLog = nestedDivs.get(28).select(ScrapingConstants.TABLE_BODY_TAG);
-        return !playoffGameLog.isEmpty();
+        Elements playoffGameLogHeaderElement = nestedDivs.get(29).select(ScrapingConstants.H2);
+        if (!playoffGameLogHeaderElement.isEmpty()) {
+            String headerText = playoffGameLogHeaderElement.get(0).text();
+            return headerText.toLowerCase().contains("playoff");
+        }
+        return false;
     }
 
     private Elements getPlayerPlayoffGamelogElements(Element document) {
         document = Jsoup.parse(document.toString().replaceAll(ScrapingConstants.COMMENT_REGEX, ""));
         Elements content = document.select(ScrapingConstants.DIV_CONTENT);
         Elements nestedDivs = content.select(ScrapingConstants.DIV);
-        return nestedDivs.get(28).select(ScrapingConstants.TABLE_BODY_TAG).select(ScrapingConstants.TABLE_ROW_TAG);
+        return nestedDivs.get(29).select(ScrapingConstants.TABLE_BODY_TAG).select(ScrapingConstants.TABLE_ROW_TAG);
     }
 
     public String getPlayerPictureUrl(String playerSystemName) {
