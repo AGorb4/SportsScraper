@@ -14,7 +14,7 @@ public class PassingStatsDto {
     private String passerRating;
     private String passingYardsPerAttempt;
     private String airYardsPerAttempt;
-    private int sacks;
+    private String sacks;
     private int sackYards;
 
 }

@@ -9,10 +9,10 @@
 
 
         <select class="mb-3" v-model="propType">
-          <option value="pts">Points</option>
-          <option value="3pt">Threes</option>
-          <option value="reb">Rebounds</option>
-          <option value="ast">Assists</option>
+          <option value="points">Points</option>
+          <option value="threes">Threes</option>
+          <option value="rebounds">Rebounds</option>
+          <option value="assists">Assists</option>
           <option value="stl">Steals</option>
           <option value="blk">Blocks</option>
           <option value="to">Turnovers</option>
@@ -29,20 +29,18 @@
       </form>
     </div>
     <div class="cardsRow col-md-6">
-      <div class="card text-dark bg-light mb-3 text-primary border-dark" v-for="(prop, index) in propsHistory"
-        :key="prop.data" v-on:click="test(index)">
+      <div class="card col-md-8 text-dark bg-light mb-3 text-primary border-dark" v-for="(prop, index) in propsHistory"
+        :key="prop.data">
         <div class="row">
           <div class="col-md-3 p-3">
             <img :src=prop.playerPictureUrl alt="Player picture" style="max-height: 75%; max-width: 50%;">
             <h5 class="card-title p-1">{{ prop.playerName }}</h5>
           </div>
-          <div class="card-body col-md-9">
-            <h5>Prop : {{ prop.propType }}</h5>
-            <h5>Prop Total : {{ prop.propTotal }}</h5>
-            <h5>Num of games : {{ prop.lastN }}</h5>
-            <h5>Player Average : {{ prop.playerAverage }}</h5>
-            <h5>Record : {{ prop.lastNRecord }}</h5>
-            <h5><strong>Win % {{ prop.winPercentage }}</strong></h5>
+          <div class="card-body col-md-9 mt-4">
+            <h5>{{ prop.propTotal }} {{ prop.propType }}</h5>
+            <h5>{{ prop.lastNRecord }}</h5>
+            <h5><strong>{{ prop.winPercentage }}%</strong></h5>
+            <button class="btn btn-danger" v-on:click="test(index)"><i class="fa fa-trash"></i></button>
           </div>
         </div>
       </div>
@@ -72,7 +70,7 @@ export default {
       console.log(this.propType)
       console.log(this.propTotal)
       console.log(this.lastN)
-      let response = axios.get('http://localhost:8090/props/statistics/2022/' + this.propType + '/' + this.propTotal + '/' + this.playerName + '/' + this.lastN)
+      let response = axios.get('http://localhost:8090/props/NBA/statistics/2023/' + this.propType + '/' + this.propTotal + '/' + this.playerName + '/' + this.lastN)
       response.then((result) => {
         console.log(result.data)
         this.propsHistory.unshift({
@@ -99,6 +97,8 @@ export default {
 </script>
 
 <style scoped>
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css");
+
 .cardsRow {
   display: flex;
   flex-direction: column;

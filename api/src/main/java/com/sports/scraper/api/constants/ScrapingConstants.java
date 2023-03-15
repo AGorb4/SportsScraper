@@ -13,6 +13,9 @@ public class ScrapingConstants {
     // tags
     public static final String SRC = "src";
 
+    // headers
+    public static final String H2 = "h2";
+
     // div
     public static final String DIV = "div";
     public static final String DIV_CONTENT = "div#content";

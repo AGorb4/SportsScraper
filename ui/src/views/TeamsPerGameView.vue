@@ -3,18 +3,11 @@
     <h1>Teams Per Game Stats</h1>
   </div>
   <div class="cardsRow" v-if="selected != null && selected.length > 0">
-    <div
-      class="card text-dark bg-light mb-3 text-primary"
-      v-for="team in selected"
-      :key="team.data"
-    >
+    <div class="card text-dark bg-light mb-3 text-primary" v-for="team in selected" :key="team.data">
       <div class="card-body">
         <h5 class="card-title">{{ team.teamName }}</h5>
         <hr />
-        <h6
-          class="card-subtitle mb-2 text-muted stat"
-          style="padding-bottom: 10px"
-        >
+        <h6 class="card-subtitle mb-2 text-muted stat" style="padding-bottom: 10px">
           <b>PTS -</b> {{ team.points }}
         </h6>
         <div class="cardsRow">
@@ -66,67 +59,29 @@
     </div>
   </div>
   <div style="padding: 15px">
-    <DataTable
-      stripedRows
-      scrollHeight="60vh"
-      :value="teams"
-      :paginator="true"
-      :rows="10"
-      dataKey="teamName"
-      v-model:filters="filters"
-      filterDisplay="menu"
+    <DataTable stripedRows scrollHeight="60vh" :value="teams" :paginator="true" :rows="10" dataKey="teamName"
+      v-model:filters="filters" filterDisplay="menu"
       paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-      :rowsPerPageOptions="[10, 20, 50]"
-      responsiveLayout="scroll"
-      :globalFilterFields="['teamName']"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
-      v-model:selection="selected"
-      selectionMode="multiple"
-      :metaKeySelection="false"
-      @rowSelect="onRowSelect"
-      @rowUnselect="onRowUnselect"
-    >
+      :rowsPerPageOptions="[10, 20, 50]" responsiveLayout="scroll" :globalFilterFields="['teamName']"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" v-model:selection="selected"
+      selectionMode="multiple" :metaKeySelection="false" @rowSelect="onRowSelect" @rowUnselect="onRowUnselect">
       <template #header>
         <div class="flex justify-content-between">
-          <Button
-            type="button"
-            icon="pi pi-filter-slash"
-            label="Clear"
-            class="p-button-outlined"
-            @click="clearFilter()"
-          />
+          <Button type="button" icon="pi pi-filter-slash" label="Clear" class="p-button-outlined"
+            @click="clearFilter()" />
           <span class="p-input-icon-left">
             <i class="pi pi-search" />
-            <InputText
-              v-model="filters['global'].value"
-              placeholder="Keyword Search"
-            />
+            <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
           </span>
         </div>
         <div style="text-align: left">
-          <MultiSelect
-            :modelValue="selectedColumns"
-            :options="columns"
-            optionLabel="header"
-            @update:modelValue="onToggle"
-            placeholder="Select Columns"
-            style="width: 20em"
-          />
+          <MultiSelect :modelValue="selectedColumns" :options="columns" optionLabel="header"
+            @update:modelValue="onToggle" placeholder="Select Columns" style="width: 20em" />
         </div>
       </template>
-      <Column
-        field="teamName"
-        header="Team"
-        :sortable="true"
-        style="width: 30px"
-      ></Column>
-      <Column
-        v-for="(col, index) of selectedColumns"
-        :field="col.field"
-        :header="col.header"
-        :sortable="col.sortable"
-        :key="col.field + '_' + index"
-      ></Column>
+      <Column field="teamName" header="Team" :sortable="true" style="width: 30px"></Column>
+      <Column v-for="(col, index) of selectedColumns" :field="col.field" :header="col.header" :sortable="col.sortable"
+        :key="col.field + '_' + index"></Column>
     </DataTable>
   </div>
 </template>
@@ -221,6 +176,7 @@ export default {
   flex-direction: row;
   justify-content: space-evenly;
 }
+
 .stat {
   padding: 0px 20px 0px 0px;
 }

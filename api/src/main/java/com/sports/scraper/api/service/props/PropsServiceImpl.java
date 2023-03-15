@@ -3,7 +3,6 @@ package com.sports.scraper.api.service.props;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sports.scraper.api.constants.DraftKingsConstants;
 import com.sports.scraper.api.constants.PropTypeConstants;
 import com.sports.scraper.api.service.scraper.ScraperService;
 import com.sports.scraper.api.service.scraper.nfl.NFLScraperServiceImpl;
@@ -122,6 +121,7 @@ public class PropsServiceImpl implements PropsService {
         List<PlayerGameLogDto> playerGameLogList = scraperService
                 .getPlayerGameLogForYear(playerPerGameStatsDto.getSystemName(), year, true);
         System.out.println("Got player game log for year");
+        System.out.println("Prop type : " + propType);
         List<PlayerGameLogDto> responseGameLogsList = new ArrayList<>();
 
         if (lastNInput > 0) {
@@ -143,7 +143,7 @@ public class PropsServiceImpl implements PropsService {
                     gamesCounter++;
                 }
             }
-            playerPropStatisticsDto.setLastNRecord(hitCounter + "-" + gamesPlayed);
+            playerPropStatisticsDto.setLastNRecord(hitCounter + "-" + (gamesPlayed - hitCounter));
             playerPropStatisticsDto.setLastNWinPercentage((hitCounter * 100) / gamesPlayed);
         } else {
             int hitCounter = 0;
@@ -155,7 +155,8 @@ public class PropsServiceImpl implements PropsService {
                     hitCounter++;
                 }
             }
-            playerPropStatisticsDto.setLastNRecord(hitCounter + "-" + playerPerGameStatsDto.getGamesCount());
+            playerPropStatisticsDto
+                    .setLastNRecord(hitCounter + "-" + (playerPerGameStatsDto.getGamesCount() - hitCounter));
             playerPropStatisticsDto.setLastNWinPercentage((hitCounter * 100) / playerPerGameStatsDto.getGamesCount());
         }
 
@@ -175,7 +176,7 @@ public class PropsServiceImpl implements PropsService {
         PlayerPropStatisticsDto playerPropStatisticsDto = new PlayerPropStatisticsDto();
         playerPropStatisticsDto
                 .setPlayerPictureUrl(
-                        scraperService.getPlayerPictureUrl(nflPlayerFantasyStatsDto.getPlayerSystemName()));
+                        nflScraperService.getPlayerPictureUrl(nflPlayerFantasyStatsDto.getPlayerSystemName()));
         System.out.println("Got player picture");
         playerPropStatisticsDto.setPropType(propType);
         playerPropStatisticsDto.setPropTotal(propTotal);
@@ -195,19 +196,19 @@ public class PropsServiceImpl implements PropsService {
 
             int hitCounter = 0;
             int gamesCounter = lastNInput;
-            int gamesPlayed = 0;
+            int gamesPlayed = playerPropStatisticsDto.getGamesPlayed();
             for (int i = 0; i < gamesCounter && i < playerGameLogList.size(); i++) {
                 NFLPlayerGameLogDto gameLog = (NFLPlayerGameLogDto) playerGameLogList.get(i);
                 responseGameLogsList.add(gameLog);
                 if (gameLog.getGameCount() != 0) {
-                    gamesPlayed++;
                     if (Float.compare(getStatFromGameLogNfl(gameLog, propType), propTotal) != -1)
                         hitCounter++;
                 } else {
                     gamesCounter++;
                 }
             }
-            playerPropStatisticsDto.setLastNRecord(hitCounter + "-" + gamesPlayed);
+            playerPropStatisticsDto
+                    .setLastNRecord(hitCounter + "-" + (nflPlayerFantasyStatsDto.getGamesPlayed() - hitCounter));
             playerPropStatisticsDto.setLastNWinPercentage((hitCounter * 100) / gamesPlayed);
         } else {
             int hitCounter = 0;
@@ -219,7 +220,8 @@ public class PropsServiceImpl implements PropsService {
                     hitCounter++;
                 }
             }
-            playerPropStatisticsDto.setLastNRecord(hitCounter + "-" + nflPlayerFantasyStatsDto.getGamesPlayed());
+            playerPropStatisticsDto
+                    .setLastNRecord(hitCounter + "-" + (nflPlayerFantasyStatsDto.getGamesPlayed() - hitCounter));
             playerPropStatisticsDto
                     .setLastNWinPercentage((hitCounter * 100) / nflPlayerFantasyStatsDto.getGamesPlayed());
         }
@@ -328,31 +330,42 @@ public class PropsServiceImpl implements PropsService {
     }
 
     private int getStatFromGameLogNfl(NFLPlayerGameLogDto playerGameLogDto, String propType) {
-        if (propType.equalsIgnoreCase(PropTypeConstants.PASSING_YARDS)) {
+        if (propType.equalsIgnoreCase(PropTypeConstants.PASSING_YARDS) && playerGameLogDto.getPassingStats() != null) {
             return playerGameLogDto.getPassingStats().getPassingYards();
-        } else if (propType.equalsIgnoreCase(PropTypeConstants.RECEIVING_YARDS)) {
+        } else if (propType.equalsIgnoreCase(PropTypeConstants.RECEIVING_YARDS)
+                && playerGameLogDto.getReceivingStats() != null) {
             return playerGameLogDto.getReceivingStats().getReceivingYards();
-        } else if (propType.equalsIgnoreCase(PropTypeConstants.RUSHING_YARDS)) {
+        } else if (propType.equalsIgnoreCase(PropTypeConstants.RUSHING_YARDS)
+                && playerGameLogDto.getRushingStats() != null) {
             return playerGameLogDto.getRushingStats().getRushingYards();
-        } else if (propType.equalsIgnoreCase(PropTypeConstants.PASSING_COMPLETIONS)) {
+        } else if (propType.equalsIgnoreCase(PropTypeConstants.PASSING_COMPLETIONS)
+                && playerGameLogDto.getPassingStats() != null) {
             return playerGameLogDto.getPassingStats().getPassesCompleted();
-        } else if (propType.equalsIgnoreCase(PropTypeConstants.PASSING_ATTEMPTS)) {
+        } else if (propType.equalsIgnoreCase(PropTypeConstants.PASSING_ATTEMPTS)
+                && playerGameLogDto.getPassingStats() != null) {
             return playerGameLogDto.getPassingStats().getPassesAttempted();
-        } else if (propType.equalsIgnoreCase(PropTypeConstants.PASSING_TOUCHDOWNS)) {
+        } else if (propType.equalsIgnoreCase(PropTypeConstants.PASSING_TOUCHDOWNS)
+                && playerGameLogDto.getPassingStats() != null) {
             return playerGameLogDto.getPassingStats().getPassingTouchdowns();
-        } else if (propType.equalsIgnoreCase(PropTypeConstants.CARRIES)) {
+        } else if (propType.equalsIgnoreCase(PropTypeConstants.CARRIES) && playerGameLogDto.getRushingStats() != null) {
             return playerGameLogDto.getRushingStats().getRushingAttempts();
-        } else if (propType.equalsIgnoreCase(PropTypeConstants.RUSHING_TOUCHDOWNS)) {
+        } else if (propType.equalsIgnoreCase(PropTypeConstants.RUSHING_TOUCHDOWNS)
+                && playerGameLogDto.getRushingStats() != null) {
             return playerGameLogDto.getRushingStats().getRushingTouchdowns();
-        } else if (propType.equalsIgnoreCase(PropTypeConstants.RECEIVING_TOUCHDOWNS)) {
+        } else if (propType.equalsIgnoreCase(PropTypeConstants.RECEIVING_TOUCHDOWNS)
+                && playerGameLogDto.getReceivingStats() != null) {
             return playerGameLogDto.getReceivingStats().getReceivingTouchdowns();
-        } else if (propType.equalsIgnoreCase(PropTypeConstants.RECEPTIONS)) {
+        } else if (propType.equalsIgnoreCase(PropTypeConstants.RECEPTIONS)
+                && playerGameLogDto.getReceivingStats() != null) {
             return playerGameLogDto.getReceivingStats().getReceptions();
-        } else if (propType.equalsIgnoreCase(PropTypeConstants.TOUCHDOWNS)) {
+        } else if (propType.equalsIgnoreCase(PropTypeConstants.TOUCHDOWNS)
+                && playerGameLogDto.getScoringStats() != null) {
             return playerGameLogDto.getScoringStats().getTouchdowns();
-        } else if (propType.equalsIgnoreCase(PropTypeConstants.TARGETS)) {
+        } else if (propType.equalsIgnoreCase(PropTypeConstants.TARGETS)
+                && playerGameLogDto.getReceivingStats() != null) {
             return playerGameLogDto.getReceivingStats().getTargets();
-        } else if (propType.equalsIgnoreCase(PropTypeConstants.INTERCEPTIONS)) {
+        } else if (propType.equalsIgnoreCase(PropTypeConstants.INTERCEPTIONS)
+                && playerGameLogDto.getPassingStats() != null) {
             return playerGameLogDto.getPassingStats().getInterceptions();
         } else {
             // todo throw an exception

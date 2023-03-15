@@ -3,11 +3,7 @@
     <h1>Props Landing</h1>
   </div>
   <div class="cardsRow">
-    <div
-      class="card text-dark bg-light mb-3 text-primary"
-      v-for="game in games"
-      :key="game.data"
-    >
+    <div class="card text-dark bg-light mb-3 text-primary" v-for="game in games" :key="game.data">
       <div class="card-body">
         <h5 class="card-title">{{ game.name }}</h5>
       </div>
@@ -35,6 +31,7 @@ export default {
   flex-direction: column;
   justify-content: space-evenly;
 }
+
 .stat {
   padding: 0px 20px 0px 0px;
 }
