@@ -87,7 +87,6 @@ public class NFLPlayerMapperUtils {
                     }
                     i = i + 2;
                 }
-                System.out.println("Stat " + s + " i " + i);
             }
         } else {
             nflPlayerGameLogDto.setReason(columns.get(8).text());
@@ -104,7 +103,7 @@ public class NFLPlayerMapperUtils {
         nflPlayerFantasyStatsDto
                 .setPlayerName(columns.get(0).text().replace("*", StringUtils.EMPTY).replace("+", StringUtils.EMPTY));
         nflPlayerFantasyStatsDto.setPlayerUrl(
-                URLUtils.SCRAPING_NFL_URL + MapperUtils.getPlayerUrl(columns.get(0)));
+                URLUtils.SCRAPING_NFL_URL + MapperUtils.getElementUrl(columns.get(0)));
         int lastForwardSlash = nflPlayerFantasyStatsDto.getPlayerUrl().lastIndexOf("/") + 1;
         int lastPeriod = nflPlayerFantasyStatsDto.getPlayerUrl().lastIndexOf(".");
         nflPlayerFantasyStatsDto
@@ -206,10 +205,10 @@ public class NFLPlayerMapperUtils {
         tacklingStats.setSoloTackles(columns.get(++i).text());
         tacklingStats.setAssistedTackles(MapperUtils.getInteger(columns.get(++i).text()));
         tacklingStats.setTacklesCombo(MapperUtils.getInteger(columns.get(++i).text()));
-        if (!columns.get(i + 1).text().isBlank()) {
+        if (!StringUtils.isBlank(columns.get(i + 1).text())) {
             tacklingStats.setTacklesForLoss(MapperUtils.getInteger(columns.get(++i).text()));
         }
-        if (!columns.get(i + 1).text().isBlank()) {
+        if (!StringUtils.isBlank(columns.get(i + 1).text())) {
             tacklingStats.setQbHits(MapperUtils.getInteger(columns.get(++i).text()));
         }
         gameLogDto.setTacklingStats(tacklingStats);
@@ -228,7 +227,7 @@ public class NFLPlayerMapperUtils {
 
     public static String getNFLPlayerFantasyPosition(Elements playerAttributes) {
         String playerPosition = playerAttributes.get(2).text();
-        if (!playerPosition.isBlank() && !playerPosition.equalsIgnoreCase("FantPos")) {
+        if (!StringUtils.isBlank(playerPosition) && !playerPosition.equalsIgnoreCase("FantPos")) {
             return playerPosition;
         }
         return null;

@@ -31,7 +31,7 @@ public class MapperUtils {
         return 0;
     }
 
-    public static String getPlayerUrl(Element column) {
+    public static String getElementUrl(Element column) {
         return column.select(ScrapingConstants.A_HREF).first().attr(ScrapingConstants.HREF);
     }
 }

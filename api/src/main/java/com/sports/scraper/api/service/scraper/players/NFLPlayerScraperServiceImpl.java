@@ -1,4 +1,4 @@
-package com.sports.scraper.api.service.scraper.nfl;
+package com.sports.scraper.api.service.scraper.players;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,7 +16,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.sports.scraper.api.constants.ScrapingConstants;
-import com.sports.scraper.api.exceptions.ScrapingException;
 import com.sports.scraper.api.service.scraper.ScraperService;
 import com.sports.scraper.api.utils.NFLPlayerMapperUtils;
 import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
@@ -30,16 +28,24 @@ import com.sports.scraper.domain.player.nfl.gamelog.NFLPlayerGameLogDto;
 import com.sports.scraper.domain.player.nfl.stats.PassingStatsDto;
 import com.sports.scraper.domain.player.nfl.stats.ReceivingStatsDto;
 import com.sports.scraper.domain.player.nfl.stats.RushingStatsDto;
-import com.sports.scraper.domain.team.TeamPerGameDto;
 
-@Service("nflScraperServiceImpl")
-public class NFLScraperServiceImpl implements ScraperService {
+import lombok.extern.slf4j.Slf4j;
+
+@Service("nflPlayerScraperServiceImpl")
+@Slf4j
+public class NFLPlayerScraperServiceImpl implements PlayerScraperService {
+
+    private ScraperService scraperService;
+
+    public NFLPlayerScraperServiceImpl(ScraperService scraperService) {
+        this.scraperService = scraperService;
+    }
 
     public List<PlayerNameDto> getAllPlayerNames(int year) {
         List<PlayerNameDto> response = new ArrayList<>();
         List<NFLPlayerFantasyStatsDto> allPlayers = getAllNFLPlayersFantasyStats(year);
         for (NFLPlayerFantasyStatsDto fantasyStatsDto : allPlayers) {
-            if (!fantasyStatsDto.getPosition().isBlank()) {
+            if (!StringUtils.isBlank(fantasyStatsDto.getPosition())) {
                 PlayerNameDto playerName = new PlayerNameDto();
                 playerName.setName(fantasyStatsDto.getPlayerName());
                 playerName.setSystemName(fantasyStatsDto.getPlayerSystemName());
@@ -48,7 +54,7 @@ public class NFLScraperServiceImpl implements ScraperService {
                 response.add(playerName);
             }
         }
-        if (response.size() > 0) {
+        if (response.isEmpty()) {
             response.sort(Comparator.comparing(PlayerNameDto::getName));
         }
         return response;
@@ -67,7 +73,7 @@ public class NFLScraperServiceImpl implements ScraperService {
         response.setPosition(player.getPosition());
         response.setSystemName(player.getPlayerSystemName());
         response.setTeam(player.getTeam());
-        response.setPlayerPictureUrl(getPlayerPictureUrl(response.getSystemName()));
+        response.setPlayerPictureUrl(scraperService.getPlayerPictureUrl("NFL", response.getSystemName()));
 
         // set the gamelog
         List<PlayerGameLogDto> playerGameLog = getPlayerGameLogForYear(playerName, year, true);
@@ -119,7 +125,7 @@ public class NFLScraperServiceImpl implements ScraperService {
             List<String> statsList = new ArrayList<>();
 
             for (Element header : tableHeaders) {
-                if (!header.text().isBlank()) {
+                if (!StringUtils.isBlank(header.text())) {
                     statsList.add(header.text());
                 }
             }
@@ -142,7 +148,7 @@ public class NFLScraperServiceImpl implements ScraperService {
                         .getElementsByTag("tr").get(0).getElementsByTag("th");
                 statsList.clear();
                 for (Element header : tableHeaders) {
-                    if (!header.text().isBlank()) {
+                    if (!StringUtils.isBlank(header.text())) {
                         statsList.add(header.text());
                     }
                 }
@@ -182,47 +188,11 @@ public class NFLScraperServiceImpl implements ScraperService {
         return null;
     }
 
-    @Override
-    public List<TeamPerGameDto> getTeamPerGameStats(int year) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String getPlayerPictureUrl(String playerName) {
-        String url = "https://www.pro-football-reference.com/players/" + playerName.charAt(0) + "/"
-                + playerName + ".htm";
-        try {
-            Document document = getDocumentForURL(url);
-            Element pictureElement = document.select(ScrapingConstants.IMG_ELEMENT).get(0);
-            System.out.println(pictureElement);
-            if (pictureElement != null) {
-                return pictureElement.attr(ScrapingConstants.SRC);
-            } else {
-                System.out.println("Picture element is null");
-            }
-        } catch (ScrapingException e) {
-            e.printStackTrace();
-            System.out.println(e.getMessage());
-        }
-        return "";
-    }
-
-    @Override
-    public Document getDocumentForURL(String url) throws ScrapingException {
-        Document doc = null;
-        Connection connection = Jsoup.connect(url);
-
-        try {
-            doc = connection.get();
-        } catch (IOException ex) {
-            throw new ScrapingException(
-                    String.format("Unsuccessful respone calling =%s Exception=%s", url,
-                            ex.getMessage()));
-        }
-
-        return doc;
-    }
+    // @Override
+    // public List<NBATeamPerGame> getTeamPerGameStats(int year) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
 
     // get all players and their fantasy stats
     @Cacheable(value = "allNFLPlayersFantasyStats")

@@ -1,5 +1,28 @@
 <template>
-  <div>
+  <nav class="navbar fixed-top">
+    <div class="navbar-left">
+      <ul class="navbar-menu">
+        <li><a href="">Home</a></li>
+        <li><a href="#">Teams</a></li>
+        <li><a href="#">Players</a></li>
+        <li><a href="#">Props</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+    <div class="navbar-right">
+      <form class="search-form">
+        <input type="text" placeholder="Search player..." class="search-input">
+        <select class="league-select">
+          <option value="nba">NBA</option>
+          <option value="nfl">NFL</option>
+          <option value="mlb">MLB</option>
+        </select>
+        <button type="submit" class="search-button">Search</button>
+      </form>
+    </div>
+  </nav>
+  <!-- <div>
     <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color: #e3f2fd; padding: 10px">
       <div class="container-fluid">
         <img alt="Site logo" src="../assets/NavBarLogo.png"
@@ -40,7 +63,24 @@
             </router-link>
           </div>
         </div>
-        <!-- <form @submit.prevent="submitForm" class="mb-3">
+
+      </div>
+
+
+    </nav>
+  </div> -->
+  <!-- <ul v-if="(searchList.length > 0)"
+    class="w-full rounded bg-white border border-gray-300 px-4 py-2 space-y-1 absolute z-10">
+    <li class="px-1 pt-1 pb-2 font-bold border-b border-gray-200">
+      Showing {{ searchList.length }} of {{ searchList.length }} results
+    </li>
+    <li v-for="player in searchList" :key="player.name" @click="selectPlayer(player)"
+      class="cursor-pointer hover:bg-gray-100 p-1">
+      {{ player.name }}
+    </li>
+  </ul> -->
+
+  <!-- <form @submit.prevent="submitForm" class="mb-3">
           <div class="input-group">
             <div class="mx-2">
               <select class="form-select" aria-label="Default select example" v-model="league">
@@ -54,21 +94,6 @@
             <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Search</button>
           </div>
         </form> -->
-      </div>
-
-
-    </nav>
-  </div>
-  <ul v-if="(searchList.length > 0)"
-    class="w-full rounded bg-white border border-gray-300 px-4 py-2 space-y-1 absolute z-10">
-    <li class="px-1 pt-1 pb-2 font-bold border-b border-gray-200">
-      Showing {{ searchList.length }} of {{ searchList.length }} results
-    </li>
-    <li v-for="player in searchList" :key="player.name" @click="selectPlayer(player)"
-      class="cursor-pointer hover:bg-gray-100 p-1">
-      {{ player.name }}
-    </li>
-  </ul>
 </template>
 
 <script>
@@ -131,3 +156,69 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f5f5f5;
+  padding: 10px;
+}
+
+.navbar-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.navbar-menu li {
+  margin-right: 10px;
+}
+
+.navbar-menu li:last-child {
+  margin-right: 0;
+}
+
+.navbar-menu li a {
+  text-decoration: none;
+  color: #333;
+}
+
+.navbar-left {
+  margin-right: auto;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.league-select {
+  padding: 6px;
+  border: none;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.search-button {
+  padding: 8px 12px;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #45a049;
+}
+</style>

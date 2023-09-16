@@ -7,6 +7,9 @@ import javax.annotation.PostConstruct;
 
 import com.sports.scraper.api.constants.DraftKingsConstants;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class URLUtils {
 
     public static final String SCRAPING_NBA_URL = "https://www.basketball-reference.com/";
@@ -32,7 +35,7 @@ public class URLUtils {
 
     @PostConstruct
     private static void createDraftkingsUrlMap() {
-        System.out.println("Create Draftkings URL Map");
+        log.info("Create Draftkings URL Map");
         draftkingsUrlMap = new HashMap<>();
         draftkingsUrlMap.put(NBA, DraftKingsConstants.DRAFTKINGS_NFL_EVENTS_URL);
         draftkingsUrlMap.put(NFL, DraftKingsConstants.DRAFTKINGS_NBA_EVENTS_URL);

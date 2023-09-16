@@ -11,20 +11,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import com.sports.scraper.api.service.scraper.ScraperService;
-import com.sports.scraper.domain.team.TeamPerGameDto;
+import com.sports.scraper.api.service.scraper.players.NBAPlayerScraperServiceImpl;
+import com.sports.scraper.domain.teams.nba.NBATeamPerGame;
 
 @RestController
 @RequestMapping(path = "/nba/teams")
 public class NBATeamsController {
 
     @Autowired
-    @Qualifier("nbaScraperServiceImpl")
-    ScraperService scraperService;
+    @Qualifier("nbaPlayerScraperServiceImpl")
+    NBAPlayerScraperServiceImpl scraperService;
+
+    @GetMapping(path = "/")
+    public ResponseEntity<List<NBATeamPerGame>> getNBATeams(@PathVariable int year) {
+        List<NBATeamPerGame> teamsPerGameList = scraperService.getTeamPerGameStats(year);
+        return new ResponseEntity<>(teamsPerGameList, HttpStatus.OK);
+    }
 
     @GetMapping(path = "/{year}")
-    public ResponseEntity<List<TeamPerGameDto>> getTeamPerGameStats(@PathVariable int year) {
-        List<TeamPerGameDto> teamsPerGameList = scraperService.getTeamPerGameStats(year);
+    public ResponseEntity<List<NBATeamPerGame>> getTeamPerGameStats(@PathVariable int year) {
+        List<NBATeamPerGame> teamsPerGameList = scraperService.getTeamPerGameStats(year);
         return new ResponseEntity<>(teamsPerGameList, HttpStatus.OK);
     }
 }
