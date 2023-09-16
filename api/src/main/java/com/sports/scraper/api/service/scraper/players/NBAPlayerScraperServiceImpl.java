@@ -1,6 +1,5 @@
-package com.sports.scraper.api.service.scraper.nba;
+package com.sports.scraper.api.service.scraper.players;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -15,10 +14,11 @@ import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
 import com.sports.scraper.domain.player.PlayerGameLogDto;
 import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
 import com.sports.scraper.domain.player.nba.NBAPlayerGameLogDto;
-import com.sports.scraper.domain.team.TeamPerGameDto;
+import com.sports.scraper.domain.teams.nba.NBATeamPerGame;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -26,23 +26,14 @@ import org.jsoup.select.Elements;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-@Service("nbaScraperServiceImpl")
-public class NBAScraperServiceImpl implements ScraperService {
+@Service("nbaPlayerScraperServiceImpl")
+@Slf4j
+public class NBAPlayerScraperServiceImpl implements PlayerScraperService {
 
-    @Override
-    public Document getDocumentForURL(String url) throws ScrapingException {
-        Document doc = null;
-        Connection connection = Jsoup.connect(url);
+    private ScraperService scraperService;
 
-        try {
-            doc = connection.get();
-        } catch (IOException ex) {
-            throw new ScrapingException(
-                    String.format("Unsuccessful respone calling =%s Exception=%s", url,
-                            ex.getMessage()));
-        }
-
-        return doc;
+    public NBAPlayerScraperServiceImpl(ScraperService scraperService) {
+        this.scraperService = scraperService;
     }
 
     @Override
@@ -51,20 +42,24 @@ public class NBAScraperServiceImpl implements ScraperService {
         try {
 
             String url = URLUtils.SCRAPING_NBA_URL + "/leagues/NBA_" + year + "_per_game.html";
-            System.out.println(url);
-            Document document = Jsoup.connect(url).get();
+            log.info("Calling getPlayersPerGameForSeason URL: " + url);
+            Document document = scraperService.getDocumentForURL(url);
+
+            // only one table on this page so can just get all table rows
             Elements playersList = document.getElementsByTag(ScrapingConstants.TABLE_ROW_TAG);
-            System.out.println(playersList.size());
+
             for (int i = 1; i < (pageSize > 0 ? pageSize : playersList.size()); i++) {
                 if (!StringUtils.isEmpty(playersList.get(i).text())) {
+                    // get the columns for the row
                     Elements playerAttributes = playersList.get(i).getElementsByTag(ScrapingConstants.TABLE_DATA_TAG);
+                    // some of the rows are headings so this ignores them
                     if (!playerAttributes.isEmpty()) {
                         responseDtos.add(NBAPlayerMapperUtils.mapPlayerPerGameStatsRow(playerAttributes));
                     }
                 }
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (ScrapingException ex) {
+            log.error("Error calling getPlayersPerGameForSeason", ex);
         }
         return responseDtos;
     }
@@ -72,13 +67,12 @@ public class NBAScraperServiceImpl implements ScraperService {
     @Override
     @Cacheable(value = "nbaPlayerGameLogForYear")
     public List<PlayerGameLogDto> getPlayerGameLogForYear(String player, int year, boolean sortCron) {
-        System.out.println("Getting NBA player game log for " + player + " year " + year);
         List<PlayerGameLogDto> responseDtos = new ArrayList<>();
         try {
 
             String url = URLUtils.constructScrapingUrlGameLogByPlayerByYear("NBA", player, year);
-
-            Document document = Jsoup.connect(url).get();
+            log.info("Calling getPlayerGameLogForYear URL: " + url);
+            Document document = scraperService.getDocumentForURL(url);
             Elements tables = document.getElementsByTag(ScrapingConstants.TABLE_BODY_TAG);
             Elements gamesList = tables.get(tables.size() - 1).getElementsByTag(ScrapingConstants.TABLE_ROW_TAG);
 
@@ -107,8 +101,8 @@ public class NBAScraperServiceImpl implements ScraperService {
                     }
                 }
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (ScrapingException ex) {
+            log.error("Error calling getPlayerGameLogForYear", ex);
         }
 
         if (sortCron)
@@ -124,8 +118,8 @@ public class NBAScraperServiceImpl implements ScraperService {
 
             String url = URLUtils.SCRAPING_NBA_URL + "/players/" + player.charAt(0) + "/" + player
                     + "/gamelog-advanced/" + year;
-
-            Document document = Jsoup.connect(url).get();
+            log.info("Calling getPlayerAdvancedGameLogForYear URL: " + url);
+            Document document = scraperService.getDocumentForURL(url);
             Elements tables = document.getElementsByTag(ScrapingConstants.TABLE_BODY_TAG);
             Elements gamesList = tables.get(tables.size() - 1).getElementsByTag(ScrapingConstants.TABLE_ROW_TAG);
 
@@ -137,22 +131,20 @@ public class NBAScraperServiceImpl implements ScraperService {
                     }
                 }
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (ScrapingException ex) {
+            log.error("Error calling getPlayerAdvancedGameLogForYear", ex);
         }
         return responseDtos;
     }
 
-    @Override
     @Cacheable(value = "nbaTeams", key = "#year")
-    public List<TeamPerGameDto> getTeamPerGameStats(int year) {
-        System.out.println("Getting teams for " + year);
-        List<TeamPerGameDto> responseDtos = new ArrayList<>();
+    public List<NBATeamPerGame> getTeamPerGameStats(int year) {
+        List<NBATeamPerGame> responseDtos = new ArrayList<>();
         try {
 
             String url = URLUtils.SCRAPING_NBA_URL + "/leagues/NBA_" + year + ".html";
-
-            Document document = Jsoup.connect(url).get();
+            log.info("Calling getTeamPerGameStats URL: " + url);
+            Document document = scraperService.getDocumentForURL(url);
             Element table = document.getElementById("per_game-team");
             Elements teamsList = table.getElementsByTag(ScrapingConstants.TABLE_ROW_TAG);
 
@@ -170,16 +162,16 @@ public class NBAScraperServiceImpl implements ScraperService {
             responseDtos.add(
                     NBAPlayerMapperUtils
                             .mapTeamPerGameStatsRow(footerRow.getElementsByTag(ScrapingConstants.TABLE_DATA_TAG)));
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (ScrapingException ex) {
+            log.error("Error calling getTeamPerGameStats", ex);
         }
         return responseDtos;
     }
 
     @Override
     public List<PlayerGameLogDto> getPlayerGameLogVsTeam(String player, String vsTeam, int year) {
-        if (vsTeam == null || vsTeam.isBlank()) {
-            System.out.println("getPlayerGameLogVsTeam VS team cannot be null or empty");
+        if (vsTeam == null || StringUtils.isBlank(vsTeam)) {
+            log.error("getPlayerGameLogVsTeam VS team cannot be null or empty");
         }
 
         return getPlayerGameLogForYear(player, year, false).stream()
@@ -189,7 +181,7 @@ public class NBAScraperServiceImpl implements ScraperService {
 
     @Override
     public PlayerPerGameStatsDto getPlayerPerGameForSeason(String playerName, int year) {
-        System.out.println("getPlayerPerGameForSeason");
+        log.info("getPlayerPerGameForSeason");
         List<PlayerPerGameStatsDto> playersPerGameList = getPlayersPerGameForSeason(year, 0);
 
         List<PlayerPerGameStatsDto> playerPerGameList = playersPerGameList.stream()
@@ -223,23 +215,5 @@ public class NBAScraperServiceImpl implements ScraperService {
         Elements content = document.select(ScrapingConstants.DIV_CONTENT);
         Elements nestedDivs = content.select(ScrapingConstants.DIV);
         return nestedDivs.get(29).select(ScrapingConstants.TABLE_BODY_TAG).select(ScrapingConstants.TABLE_ROW_TAG);
-    }
-
-    public String getPlayerPictureUrl(String playerSystemName) {
-        String url = "https://www.basketball-reference.com/players/" + playerSystemName.charAt(0) + "/"
-                + playerSystemName + ".html";
-        try {
-            Document document = getDocumentForURL(url);
-            Element pictureElement = document.select(ScrapingConstants.IMG_ELEMENT).get(0);
-            if (pictureElement != null) {
-                return pictureElement.attr(ScrapingConstants.SRC);
-            } else {
-                System.out.println("Picture element is null");
-            }
-        } catch (ScrapingException e) {
-            e.printStackTrace();
-            System.out.println(e.getMessage());
-        }
-        return "";
     }
 }

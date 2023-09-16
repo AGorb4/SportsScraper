@@ -9,6 +9,8 @@ import com.sports.scraper.domain.props.statistics.responses.PlayerPropStatistics
 import com.sports.scraper.domain.props.statistics.responses.PlayerPropStatisticsReportRequest;
 import com.sports.scraper.domain.props.statistics.responses.PropStatisticsReportResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Slf4j
 @RequestMapping(path = "/props")
 public class PropsController {
 
@@ -40,7 +43,7 @@ public class PropsController {
             @PathVariable String playerName,
             @PathVariable int year, @PathVariable String propType, @PathVariable float propTotal,
             @PathVariable int lastNInput) {
-        System.out.println("Getting prop stats for " + playerName);
+        log.info("Getting prop stats for " + playerName);
         return ResponseEntity.ok(
                 propsService.getPlayerPropStatistics(league, playerName, propType, propTotal, lastNInput, "", year,
                         true));

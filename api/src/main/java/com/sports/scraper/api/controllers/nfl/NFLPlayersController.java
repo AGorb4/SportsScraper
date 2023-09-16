@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sports.scraper.api.service.scraper.nfl.NFLScraperServiceImpl;
+import com.sports.scraper.api.service.scraper.players.NFLPlayerScraperServiceImpl;
 import com.sports.scraper.domain.player.PlayerGameLogDto;
 import com.sports.scraper.domain.player.PlayerNameDto;
 import com.sports.scraper.domain.player.nfl.NFLPlayerProfileDto;
@@ -22,7 +22,7 @@ import com.sports.scraper.domain.player.nfl.fantasy.NFLPlayerFantasyStatsDto;
 public class NFLPlayersController {
 
     @Autowired
-    NFLScraperServiceImpl scraperService;
+    NFLPlayerScraperServiceImpl scraperService;
 
     @GetMapping(path = "/{year}")
     public ResponseEntity<List<PlayerNameDto>> getPlayersByYear(@PathVariable int year) {

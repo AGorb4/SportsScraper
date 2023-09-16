@@ -23,6 +23,7 @@ public class ScrapingConstants {
     // table
     public static final String TABLE_BODY_TAG = "tbody";
     public static final String TABLE_ROW_TAG = "tr";
+    public static final String TABLE_HEADER_TAG = "th";
     public static final String TABLE_DATA_TAG = "td";
     public static final String TABLE_FOOTER = "tfoot";
 

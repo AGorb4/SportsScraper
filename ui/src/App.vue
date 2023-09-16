@@ -1,7 +1,9 @@
 <template>
-  <NavBar />
-  <router-view />
-  <!--  <Footer /> -->
+  <div class="container">
+    <NavBar />
+    <router-view />
+    <!--  <Footer /> -->
+  </div>
 </template>
 
 <style  lang="scss">
@@ -14,10 +16,6 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-
-nav {
-  padding: 30px;
 }
 
 nav a {

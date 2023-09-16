@@ -5,7 +5,7 @@ import org.jsoup.select.Elements;
 import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
 import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
 import com.sports.scraper.domain.player.nba.NBAPlayerGameLogDto;
-import com.sports.scraper.domain.team.TeamPerGameDto;
+import com.sports.scraper.domain.teams.nba.NBATeamPerGame;
 
 public class NBAPlayerMapperUtils {
 
@@ -18,7 +18,7 @@ public class NBAPlayerMapperUtils {
         PlayerPerGameStatsDto playerDto = new PlayerPerGameStatsDto();
         playerDto.setPlayerName(playerAttributes.get(0).text());
         playerDto.setPlayerUrl(
-                URLUtils.SCRAPING_NBA_URL + MapperUtils.getPlayerUrl(playerAttributes.get(0)));
+                URLUtils.SCRAPING_NBA_URL + MapperUtils.getElementUrl(playerAttributes.get(0)));
         int lastForwardSlash = playerDto.getPlayerUrl().lastIndexOf("/") + 1;
         int lastPeriod = playerDto.getPlayerUrl().lastIndexOf(".");
         playerDto.setSystemName(playerDto.getPlayerUrl().substring(lastForwardSlash, lastPeriod));
@@ -124,8 +124,8 @@ public class NBAPlayerMapperUtils {
         return responseDto;
     }
 
-    public static TeamPerGameDto mapTeamPerGameStatsRow(Elements columns) {
-        TeamPerGameDto responseDto = new TeamPerGameDto();
+    public static NBATeamPerGame mapTeamPerGameStatsRow(Elements columns) {
+        NBATeamPerGame responseDto = new NBATeamPerGame();
         responseDto.setTeamName(columns.get(0).text());
 
         Elements urlElements = columns.get(0).getElementsByTag("a");

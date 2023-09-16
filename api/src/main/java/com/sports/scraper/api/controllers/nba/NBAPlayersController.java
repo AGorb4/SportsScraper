@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sports.scraper.api.service.scraper.ScraperService;
+import com.sports.scraper.api.service.scraper.players.PlayerScraperService;
 import com.sports.scraper.domain.player.PlayerAdvancedGameLogDto;
 import com.sports.scraper.domain.player.PlayerGameLogDto;
 import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
@@ -22,13 +22,14 @@ import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
 public class NBAPlayersController {
 
     @Autowired
-    @Qualifier("nbaScraperServiceImpl")
-    ScraperService scraperService;
+    @Qualifier("nbaPlayerScraperServiceImpl")
+    PlayerScraperService playerScraperService;
 
     @GetMapping(path = "/{year}/pergame/{pageSize}")
     public ResponseEntity<List<PlayerPerGameStatsDto>> getPlayerPerGameForSeasonByTeam(@PathVariable int year,
             @PathVariable int pageSize) {
-        List<PlayerPerGameStatsDto> playersPerGameList = scraperService.getPlayersPerGameForSeason(year, pageSize);
+        List<PlayerPerGameStatsDto> playersPerGameList = playerScraperService.getPlayersPerGameForSeason(year,
+                pageSize);
         return new ResponseEntity<>(playersPerGameList, HttpStatus.OK);
     }
 
@@ -39,7 +40,7 @@ public class NBAPlayersController {
         if (playerOneName.isEmpty() || playerTwoName.isEmpty())
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-        List<PlayerPerGameStatsDto> playersPerGameList = scraperService.getPlayersPerGameForSeason(year, 0);
+        List<PlayerPerGameStatsDto> playersPerGameList = playerScraperService.getPlayersPerGameForSeason(year, 0);
 
         List<PlayerPerGameStatsDto> filteredPlayers = playersPerGameList.stream()
                 .filter(p -> p.getSystemName().equals(playerOneName) || p.getSystemName().equals(playerTwoName))
@@ -54,7 +55,7 @@ public class NBAPlayersController {
     @GetMapping(path = "/{year}/gamelog/{player}")
     public ResponseEntity<List<PlayerGameLogDto>> getPlayerGameLogForYear(@PathVariable String player,
             @PathVariable int year) {
-        List<PlayerGameLogDto> playersGameLogList = scraperService.getPlayerGameLogForYear(player, year,
+        List<PlayerGameLogDto> playersGameLogList = playerScraperService.getPlayerGameLogForYear(player, year,
                 false);
         return new ResponseEntity<>(playersGameLogList, HttpStatus.OK);
     }
@@ -62,7 +63,7 @@ public class NBAPlayersController {
     @GetMapping(path = "/{year}/gamelog/advanced/{player}")
     public ResponseEntity<List<PlayerAdvancedGameLogDto>> getPlayerAdvancedGameLogForYear(@PathVariable String player,
             @PathVariable int year) {
-        List<PlayerAdvancedGameLogDto> playersGameLogList = scraperService.getPlayerAdvancedGameLogForYear(player,
+        List<PlayerAdvancedGameLogDto> playersGameLogList = playerScraperService.getPlayerAdvancedGameLogForYear(player,
                 year);
         return new ResponseEntity<>(playersGameLogList, HttpStatus.OK);
     }
@@ -70,7 +71,7 @@ public class NBAPlayersController {
     @GetMapping(path = "/{year}/gamelog/{player}/against/{vsTeam}")
     public ResponseEntity<List<PlayerGameLogDto>> getPlayerGameLogVsTeam(@PathVariable String player,
             @PathVariable int year, @PathVariable String vsTeam) {
-        List<PlayerGameLogDto> playersGameLogList = scraperService.getPlayerGameLogVsTeam(player, vsTeam, year);
+        List<PlayerGameLogDto> playersGameLogList = playerScraperService.getPlayerGameLogVsTeam(player, vsTeam, year);
         return new ResponseEntity<>(playersGameLogList, HttpStatus.OK);
     }
 }

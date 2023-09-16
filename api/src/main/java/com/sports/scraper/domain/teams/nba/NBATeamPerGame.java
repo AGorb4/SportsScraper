@@ -1,9 +1,9 @@
-package com.sports.scraper.domain.team;
+package com.sports.scraper.domain.teams.nba;
 
 import lombok.Data;
 
 @Data
-public class TeamPerGameDto {
+public class NBATeamPerGame {
     private String teamName;
     private String teamUrl;
     private int gamesPlayed;

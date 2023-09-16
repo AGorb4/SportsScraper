@@ -5,7 +5,8 @@ import java.util.List;
 
 import com.sports.scraper.api.constants.PropTypeConstants;
 import com.sports.scraper.api.service.scraper.ScraperService;
-import com.sports.scraper.api.service.scraper.nfl.NFLScraperServiceImpl;
+import com.sports.scraper.api.service.scraper.players.NFLPlayerScraperServiceImpl;
+import com.sports.scraper.api.service.scraper.players.PlayerScraperService;
 import com.sports.scraper.api.utils.URLUtils;
 import com.sports.scraper.domain.player.PlayerGameLogDto;
 import com.sports.scraper.domain.player.PlayerPerGameStatsDto;
@@ -20,6 +21,8 @@ import com.sports.scraper.domain.props.statistics.responses.PlayerPropStatistics
 import com.sports.scraper.domain.props.statistics.responses.PropStatisticsReportRequest;
 import com.sports.scraper.domain.props.statistics.responses.PropStatisticsReportResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
@@ -27,17 +30,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
+@Slf4j
 public class PropsServiceImpl implements PropsService {
 
     private String draftkingsUrl = "https://sportsbook.draftkings.com//sites/US-SB/api/v4/eventgroups/88670846";
 
     @Autowired
-    @Qualifier("nbaScraperServiceImpl")
     private ScraperService scraperService;
 
     @Autowired
-    @Qualifier("nflScraperServiceImpl")
-    private NFLScraperServiceImpl nflScraperService;
+    @Qualifier("nbaPlayerScraperServiceImpl")
+    private PlayerScraperService nbaPlayerScraperService;
+
+    @Autowired
+    @Qualifier("nflPlayerScraperServiceImpl")
+    private NFLPlayerScraperServiceImpl nflPlayerScraperService;
 
     @Override
     public List<OfferCategory> getPropTypes() {
@@ -46,7 +53,7 @@ public class PropsServiceImpl implements PropsService {
         ResponseEntity<DraftkingsResponse> response = restTemplate.getForEntity(draftkingsUrl,
                 DraftkingsResponse.class);
         if (response.getStatusCode().value() == 200 && response.hasBody()) {
-            System.out.println("Success getting draftkings offer categories");
+            log.info("Success getting draftkings offer categories");
             DraftkingsResponse draftkingsResponse = response.getBody();
             if (draftkingsResponse != null) {
                 if (draftkingsResponse.getEventGroup() != null) {
@@ -56,10 +63,10 @@ public class PropsServiceImpl implements PropsService {
                     }
                     return draftkingsResponse.getEventGroup().getOfferCategories();
                 } else {
-                    System.out.println("Draftkings event group object is null");
+                    log.error("Draftkings event group object is null");
                 }
             } else {
-                System.out.println("Null response body getting draftkings offer categories");
+                log.error("Null response body getting draftkings offer categories");
             }
         }
         return new ArrayList<>();
@@ -73,16 +80,16 @@ public class PropsServiceImpl implements PropsService {
         ResponseEntity<DraftkingsResponse> response = restTemplate.getForEntity(url,
                 DraftkingsResponse.class);
         if (response.getStatusCode().value() == 200 && response.hasBody()) {
-            System.out.println("Success getting draftkings events for the " + league);
+            log.info("Success getting draftkings events for the " + league);
             DraftkingsResponse draftkingsResponse = response.getBody();
             if (draftkingsResponse != null) {
                 if (draftkingsResponse.getEventGroup() != null) {
                     return draftkingsResponse.getEventGroup().getEvents();
                 } else {
-                    System.out.println("Draftkings event group object is null");
+                    log.error("Draftkings event group object is null");
                 }
             } else {
-                System.out.println("Null response body getting draftkings offer categories");
+                log.error("Null response body getting draftkings offer categories");
             }
         }
         return new ArrayList<>();
@@ -106,22 +113,23 @@ public class PropsServiceImpl implements PropsService {
     public PlayerPropStatisticsDto getNbaPlayerPropStatistics(String playerName, String propType, float propTotal,
             int lastNInput,
             int year, boolean includeGamelog) {
-        PlayerPerGameStatsDto playerPerGameStatsDto = scraperService.getPlayerPerGameForSeason(playerName, year);
-        System.out.println("Got player per game for season");
+        PlayerPerGameStatsDto playerPerGameStatsDto = nbaPlayerScraperService.getPlayerPerGameForSeason(playerName,
+                year);
+        log.info("Got player per game for season");
         PlayerPropStatisticsDto playerPropStatisticsDto = new PlayerPropStatisticsDto();
         playerPropStatisticsDto
-                .setPlayerPictureUrl(scraperService.getPlayerPictureUrl(playerPerGameStatsDto.getSystemName()));
-        System.out.println("Got player picture");
+                .setPlayerPictureUrl(scraperService.getPlayerPictureUrl("NBA", playerPerGameStatsDto.getSystemName()));
+        log.info("Got player picture");
         playerPropStatisticsDto.setPropType(propType);
         playerPropStatisticsDto.setPropTotal(propTotal);
         playerPropStatisticsDto.setPlayerAverage(getNBAPlayerAverageForStat(playerPerGameStatsDto, propType));
         playerPropStatisticsDto.setGamesPlayed(playerPerGameStatsDto.getGamesCount());
         playerPropStatisticsDto.setGamesStarted(playerPerGameStatsDto.getGamesStartedCount());
 
-        List<PlayerGameLogDto> playerGameLogList = scraperService
+        List<PlayerGameLogDto> playerGameLogList = nbaPlayerScraperService
                 .getPlayerGameLogForYear(playerPerGameStatsDto.getSystemName(), year, true);
-        System.out.println("Got player game log for year");
-        System.out.println("Prop type : " + propType);
+        log.info("Got player game log for year");
+        log.info("Prop type : " + propType);
         List<PlayerGameLogDto> responseGameLogsList = new ArrayList<>();
 
         if (lastNInput > 0) {
@@ -170,23 +178,23 @@ public class PropsServiceImpl implements PropsService {
     public PlayerPropStatisticsDto getNflPlayerPropStatistics(String playerName, String propType, float propTotal,
             int lastNInput,
             int year, boolean includeGamelog) {
-        NFLPlayerFantasyStatsDto nflPlayerFantasyStatsDto = nflScraperService.getNFLPlayerFantasyStats(playerName,
+        NFLPlayerFantasyStatsDto nflPlayerFantasyStatsDto = nflPlayerScraperService.getNFLPlayerFantasyStats(playerName,
                 year);
-        System.out.println("Got player per game for season");
+        log.info("Got player per game for season");
         PlayerPropStatisticsDto playerPropStatisticsDto = new PlayerPropStatisticsDto();
         playerPropStatisticsDto
                 .setPlayerPictureUrl(
-                        nflScraperService.getPlayerPictureUrl(nflPlayerFantasyStatsDto.getPlayerSystemName()));
-        System.out.println("Got player picture");
+                        scraperService.getPlayerPictureUrl("NFL", nflPlayerFantasyStatsDto.getPlayerSystemName()));
+        log.info("Got player picture");
         playerPropStatisticsDto.setPropType(propType);
         playerPropStatisticsDto.setPropTotal(propTotal);
         playerPropStatisticsDto.setPlayerAverage(getNFLPlayerAverageForStat(nflPlayerFantasyStatsDto, propType));
         playerPropStatisticsDto.setGamesPlayed(nflPlayerFantasyStatsDto.getGamesPlayed());
         playerPropStatisticsDto.setGamesStarted(nflPlayerFantasyStatsDto.getGamesStarted());
 
-        List<PlayerGameLogDto> playerGameLogList = nflScraperService
+        List<PlayerGameLogDto> playerGameLogList = nflPlayerScraperService
                 .getPlayerGameLogForYear(nflPlayerFantasyStatsDto.getPlayerName(), year, true);
-        System.out.println("Got player game log for year");
+        log.info("Got player game log for year");
         List<PlayerGameLogDto> responseGameLogsList = new ArrayList<>();
 
         if (lastNInput > 0) {
